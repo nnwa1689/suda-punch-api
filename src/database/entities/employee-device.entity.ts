@@ -18,10 +18,10 @@ export class EmployeeDevice {
 //     CONSTRAINT checkin_devices_pkey PRIMARY KEY (id)
 // )
   @PrimaryGeneratedColumn()
-  id: number;
+  id: string;
 
-  @Column({ type: 'int' })
-  employee_id: number; // 員工 ID
+  @Column({ type: 'character' })
+  employee_id: string; // 員工 ID
 
   @Column({ length: 255 })
   device_uuid: string; // 裝置唯一識別碼 (IMEI, IDFV 等)

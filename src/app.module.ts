@@ -5,6 +5,7 @@ import { CommonModule } from './common/common.module';
 import { PunchModule } from './punch/punch.module';
 import { PunchPoint } from './database/entities/punch-point.entity'; 
 import { EmployeeDevice } from './database/entities/employee-device.entity';
+import { PunchLog } from './database/entities/punch-log.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 
@@ -24,6 +25,7 @@ import { ConfigModule } from '@nestjs/config';
       entities: [
         PunchPoint,
         EmployeeDevice,
+        PunchLog
         // ... 其他 Entity 
       ],
       synchronize: false, 
