@@ -1,9 +1,9 @@
 // src/database/entities/employee-device.entity.ts
-import { Entity, PrimaryGeneratedColumn, Column, Unique, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryColumn, Column, Unique, ManyToOne, JoinColumn } from 'typeorm';
 // 這裡假設您稍後會建立 Employee Entity
 // import { Employee } from './employee.entity'; 
 
-@Entity('employee_devices')
+@Entity('employee_device')
 @Unique(['employee_id', 'device_uuid']) // 確保同一個員工/裝置 ID 組合唯一
 export class EmployeeDevice {
 
@@ -17,8 +17,13 @@ export class EmployeeDevice {
 //     created_at timestamp with time zone DEFAULT now(),
 //     CONSTRAINT checkin_devices_pkey PRIMARY KEY (id)
 // )
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn({ type: 'uuid' })
   id: string;
+  // Q: 為何ＩＤ用遠都是null?
+  //A: 因為PrimaryGeneratedColumn會自動產生唯一的ID值，通常是數字或UUID格式，這樣可以確保每筆記錄都有一個獨特的標識符。
+   //Q: 但他沒有產生
+   //A: 如果ID欄位顯示為null，可能是因為在插入記錄時沒有正確觸發ID的自動生成機制。請確保在創建新記錄時沒有手動設置ID欄位，並且數據庫連接和配置正確無誤。
+  
 
   @Column({ type: 'character' })
   employee_id: string; // 員工 ID

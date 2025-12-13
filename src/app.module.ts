@@ -8,6 +8,7 @@ import { EmployeeDevice } from './database/entities/employee-device.entity';
 import { PunchLog } from './database/entities/punch-log.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { Employee } from './database/entities/employee.entity';
 
 @Module({
   imports: [
@@ -25,7 +26,8 @@ import { ConfigModule } from '@nestjs/config';
       entities: [
         PunchPoint,
         EmployeeDevice,
-        PunchLog
+        PunchLog,
+        Employee
         // ... 其他 Entity 
       ],
       synchronize: false, 

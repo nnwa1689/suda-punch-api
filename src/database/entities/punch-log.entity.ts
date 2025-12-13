@@ -1,5 +1,5 @@
 // src/database/entities/punch-log.entity.ts
-import { Entity, PrimaryGeneratedColumn, Column, Index } from 'typeorm';
+import { Entity, PrimaryColumn, Column, Index } from 'typeorm';
 
 @Entity('punch_logs')
 @Index(['employee_id', 'punch_time']) // 加快按員工和時間查詢
@@ -14,7 +14,7 @@ export class PunchLog {
 //     id uuid NOT NULL,
 //     CONSTRAINT punch_logs_pkey PRIMARY KEY (id)
 // )
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn({ type: 'uuid' })
   id: string;
 
   @Column({ type: 'character' })

@@ -14,7 +14,7 @@ export class PunchPoint {
 // )
 
   @PrimaryGeneratedColumn()
-  id: number;
+  id: string;
 
   @Column({ length: 50 })
   name: string; // 地點名稱 (例如：總公司辦公室 A 區)
