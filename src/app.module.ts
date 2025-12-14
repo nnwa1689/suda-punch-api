@@ -9,6 +9,7 @@ import { PunchLog } from './database/entities/punch-log.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { Employee } from './database/entities/employee.entity';
+import { EmployeeModule } from './employee/employee.module';
 
 @Module({
   imports: [
@@ -32,7 +33,7 @@ import { Employee } from './database/entities/employee.entity';
       ],
       synchronize: false, 
     }),
-    CommonModule, PunchModule,
+    CommonModule, PunchModule, EmployeeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
