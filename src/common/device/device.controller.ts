@@ -1,5 +1,5 @@
 // src/device/device.controller.ts
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Delete } from '@nestjs/common';
 import { DeviceService } from './device.service';
 import { DeviceBindingDto } from '../../database/dto/device-binding.dto';
 import { StandardResponse } from '../../common/response.interface';
@@ -24,6 +24,28 @@ export class DeviceController {
             deviceUuid: result.device_uuid,
             bindingId: result.id,
             isActive: result.is_active,
+        }
+    };
+  }
+
+  @Delete('unbind') // 使用 DELETE 方法
+  @HttpCode(HttpStatus.OK) // 執行成功，返回 200
+  async unbindDevice(@Body() dto: DeviceBindingDto): Promise<StandardResponse<any>> {
+    
+    const result = await this.deviceService.unbindDevice(
+        dto.employeeId,
+        dto.deviceUuid
+    );
+
+    // 返回成功響應
+    return {
+        statusCode: HttpStatus.OK,
+        success: true,
+        message: '裝置已成功解除綁定/禁用。',
+        data: {
+            employeeId: result.employee_id,
+            deviceUuid: result.device_uuid,
+            isActive: result.is_active, // 應為 false
         }
     };
   }
