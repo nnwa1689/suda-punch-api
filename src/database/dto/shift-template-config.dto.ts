@@ -1,10 +1,30 @@
 // src/database/dto/shift-template-config.dto.ts
+import { IsString, IsBoolean, IsInt, Min, Max } from 'class-validator';
 
 export class CreateShiftTemplateDto {
+  @IsString()
   readonly name: string;
-  readonly isCrossDay: boolean; // is_cross_day
-  readonly startTimeH: number; // start_time_h
-  readonly startTimeM: number; // start_time_m
-  readonly endTimeH: number; // end_time_h
-  readonly endTimeM: number; // end_time_m
+  
+  @IsBoolean()
+  readonly isCrossDay: boolean; // 映射到 is_cross_day
+
+  @IsInt()
+  @Min(0)
+  @Max(23)
+  readonly startTimeH: number; // 映射到 start_time_h
+
+  @IsInt()
+  @Min(0)
+  @Max(59)
+  readonly startTimeM: number; // 映射到 start_time_m
+
+  @IsInt()
+  @Min(0)
+  @Max(23)
+  readonly endTimeH: number; // 映射到 end_time_h
+
+  @IsInt()
+  @Min(0)
+  @Max(59)
+  readonly endTimeM: number; // 映射到 end_time_m
 }

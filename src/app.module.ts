@@ -10,6 +10,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { Employee } from './database/entities/employee.entity';
 import { EmployeeModule } from './employee/employee.module';
+import { EmployeeSchedule } from './database/entities/employee-schedule.entity';
+import { ShiftTemplate } from './database/entities/shift-template.entity';
 
 @Module({
   imports: [
@@ -28,7 +30,9 @@ import { EmployeeModule } from './employee/employee.module';
         PunchPoint,
         EmployeeDevice,
         PunchLog,
-        Employee
+        Employee,
+        EmployeeSchedule,
+        ShiftTemplate
         // ... 其他 Entity 
       ],
       synchronize: false, 

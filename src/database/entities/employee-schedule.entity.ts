@@ -1,12 +1,12 @@
 // src/database/entities/employee-schedule.entity.ts
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, PrimaryColumn } from 'typeorm';
 import { ShiftTemplate } from './shift-template.entity'; 
 import { Employee } from './employee.entity';
 
-@Entity('employee_schedules')
+@Entity('employee_schedule')
 export class EmployeeSchedule {
   // *** 變動 1：id 改為 UUID 並由 DB 自動產生 ***
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn( { type:'uuid' })
   id: string;
 
   @Column({ type: 'varchar', length: 100 })

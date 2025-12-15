@@ -1,9 +1,9 @@
 // src/database/entities/shift-template.entity.ts
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, Column, PrimaryColumn } from 'typeorm';
 
 @Entity('shift_templates') // *** 更新表名稱 ***
 export class ShiftTemplate {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn({ type: 'uuid' })
   id: string;
 
   @Column({ length: 50 })

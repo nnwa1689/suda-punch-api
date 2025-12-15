@@ -6,6 +6,10 @@ import { EmployeeService } from './employee/employee.service';
 import { Employee } from '../database/entities/employee.entity';
 import { ShiftTemplate } from '../database/entities/shift-template.entity'; // 引入
 import { EmployeeSchedule } from '../database/entities/employee-schedule.entity'; // 引入
+import { EmployeeScheduleController } from './employee-schedule/employee-schedule.controller';
+import { EmployeeScheduleService } from './employee-schedule/employee-schedule.service';
+import { ShiftTemplateController } from './shift-template/shift-template.controller';
+import { ShiftTemplateService } from './shift-template/shift-template.service';
 
 @Module({
   imports: [
@@ -15,8 +19,8 @@ import { EmployeeSchedule } from '../database/entities/employee-schedule.entity'
       EmployeeSchedule // 註冊所有相關 Entity
     ]),
   ],
-  controllers: [EmployeeController],
-  providers: [EmployeeService],
-  exports: [EmployeeService], // 確保其他模組可以讀取員工資料
+  controllers: [EmployeeController, EmployeeScheduleController, ShiftTemplateController],
+  providers: [EmployeeService, EmployeeScheduleService, ShiftTemplateService],
+  exports: [EmployeeService, EmployeeScheduleService], // 確保其他模組可以讀取員工資料
 })
 export class EmployeeModule {}
