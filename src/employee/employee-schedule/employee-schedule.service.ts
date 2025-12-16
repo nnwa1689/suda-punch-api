@@ -1,7 +1,7 @@
 // src/employee/employee-schedule.service.ts
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 import { EmployeeSchedule } from '../../database/entities/employee-schedule.entity';
 import { CreateEmployeeScheduleDto } from '../../database/dto/employee-schedule-config.dto';
 import { v4 as uuidv4 } from 'uuid';
@@ -40,13 +40,27 @@ export class EmployeeScheduleService {
     const shiftTmeplateExist = await this.templateRepository.findOne({ where: { id: dto.shiftTemplateId } });
     // 建立排班 Entity，注意 DTO 欄位到 Entity 欄位的映射
     if(shiftTmeplateExist != null && dto.shiftTemplateId.trim().length > 0){
+        // 確認是否重複排班
+        const scheduleIsExist = await this.scheduleRepository.findOne( 
+          { where:  
+            { 
+              employee_id: dto.employeeId, 
+              schedule_date: dto.scheduleDate, 
+              shift_template_id: dto.shiftTemplateId
+            }
+          });
+
+        if(scheduleIsExist != null){
+          throw new BadRequestException(`員工 ${dto.employeeId} 在 ${dto.scheduleDate} 已有 ${dto.shiftTemplateId} 班別排班記錄，新增失敗。`);
+        }
+
         const newSchedule = this.scheduleRepository.create({
             id:uuidv4(),
             employee_id: dto.employeeId,
             schedule_date: dto.scheduleDate,
             shift_template_id: dto.shiftTemplateId,
         });
-        // 可以在此處加入防止同一天重複排班的檢查邏輯
+
         return this.scheduleRepository.save(newSchedule);
     } else {
         throw new NotFoundException('找不到指定班別模板資料！');
@@ -83,4 +97,32 @@ export class EmployeeScheduleService {
         throw new NotFoundException(`找不到 ID 為 ${id} 的排班記錄，刪除失敗。`);
     }
   }
+
+  /**
+     * 根據員工ID和日期查找排班記錄
+     * @param employeeId 員工 UUID
+     * @param date 要查詢的日期
+     */
+    async findByEmployeeAndDate(employeeId: string, date: Date): Promise<EmployeeSchedule | null> {
+        // 註: 為了精確匹配日期，您可能需要將 date 轉換為 YYYY-MM-DD 格式，
+        // 或使用資料庫特定的日期函數。這裡假設您的資料庫設定能接受 Date 物件的日期部分。
+        
+        // 由於 schedule_date 在資料庫中可能是 Date 類型，我們需要確保查詢條件只比對日期部分
+        // 這裡為了簡潔，我們先假設傳入的 date 已經被處理為當天的 00:00:00
+
+        const startOfDay = new Date(date);
+        startOfDay.setHours(0, 0, 0, 0); // 將時間設置為當天開始
+
+        // 2. 建立當天的結束時間 (23:59:59.999)
+        const endOfDay = new Date(date);
+        endOfDay.setHours(23, 59, 59, 999); // 將時間設置為當天結束
+        
+        return this.scheduleRepository.findOne({
+            where: {
+                employee_id: employeeId,
+                schedule_date: Between(startOfDay, endOfDay), // 這裡需要 TypeORM 能夠正確比對日期
+            },
+            relations: ['employee', 'template'], // 必須載入 template 才能判斷遲到
+        });
+    }
 }

@@ -31,9 +31,9 @@ export class ShiftTemplateController {
     return this.templateService.update(id, dto);
   }
 
-  @Delete(':id') // 刪除
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@Param('id') id: string) {
-    await this.templateService.remove(id);
+  @Post('toggleIsActive/:id') // 停用班別
+  @HttpCode(HttpStatus.OK)
+  async toggleIsActive(@Param('id') id: string) {
+    await this.templateService.toggleIsActive(id);
   }
 }

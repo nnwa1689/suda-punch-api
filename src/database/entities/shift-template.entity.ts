@@ -34,4 +34,7 @@ export class ShiftTemplate {
 
   @Column({ type: 'timestamp with time zone', default: () => 'CURRENT_TIMESTAMP' })
   updated_at: Date;
+
+  @Column({ type: 'boolean', default: () => true })
+  is_active: boolean;
 }

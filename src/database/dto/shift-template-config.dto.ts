@@ -2,6 +2,7 @@
 import { IsString, IsBoolean, IsInt, Min, Max } from 'class-validator';
 
 export class CreateShiftTemplateDto {
+  readonly id: string;
   @IsString()
   readonly name: string;
   
@@ -27,4 +28,7 @@ export class CreateShiftTemplateDto {
   @Min(0)
   @Max(59)
   readonly endTimeM: number; // 映射到 end_time_m
+
+  @IsBoolean()
+  readonly isActive:boolean;
 }

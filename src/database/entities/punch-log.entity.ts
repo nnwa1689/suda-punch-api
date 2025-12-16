@@ -34,4 +34,10 @@ export class PunchLog {
   
   @Column({ type: 'character', length: 50, nullable: true })
   punch_type: string | null; // 例如：'CHECK_IN', 'CHECK_OUT'
+
+  @Column({ type: 'boolean', default: false })
+  is_late: boolean;
+
+  @Column({ type: 'boolean', default: false })
+  is_early: boolean;
 }

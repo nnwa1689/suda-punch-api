@@ -1,5 +1,5 @@
 // src/employee/shift-template.service.ts
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ShiftTemplate } from '../../database/entities/shift-template.entity';
@@ -28,8 +28,14 @@ export class ShiftTemplateService {
 
   // 3. 新增班別模板
   async create(dto: CreateShiftTemplateDto): Promise<ShiftTemplate> {
+    // 檢查是否有相同ID的班別
+    const templateIsExist = await this.templateRepository.findOne({ where: { id:dto.id } });
+    if(templateIsExist != null){
+      throw new BadRequestException(`班別代碼 ${dto.id} 已存在，新增失敗。`);
+    }
     // 映射 DTO 欄位到 Entity 欄位（採用駝峰轉蛇形）
     const newTemplate = this.templateRepository.create({
+        id: dto.id,
         name: dto.name,
         is_cross_day: dto.isCrossDay,
         start_time_h: dto.startTimeH,
@@ -37,6 +43,7 @@ export class ShiftTemplateService {
         end_time_h: dto.endTimeH,
         end_time_m: dto.endTimeM,
     });
+
     return this.templateRepository.save(newTemplate);
   }
 
@@ -56,10 +63,13 @@ export class ShiftTemplateService {
   }
 
   // 5. 刪除班別模板
-  async remove(id: string): Promise<void> {
-    const result = await this.templateRepository.delete(id);
-    if (result.affected === 0) {
-        throw new NotFoundException(`找不到 ID 為 ${id} 的班別模板，刪除失敗。`);
+  async toggleIsActive(id: string): Promise<ShiftTemplate> {
+    const template = await this.findById(id);
+    if (template == null) {
+      throw new NotFoundException(`找不到 ID 為 ${id} 的班別模板，啟用/停用失敗。`);
     }
+    template.is_active = !template.is_active;
+
+    return this.templateRepository.save(template);
   }
 }
