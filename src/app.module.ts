@@ -12,6 +12,9 @@ import { Employee } from './database/entities/employee.entity';
 import { EmployeeModule } from './employee/employee.module';
 import { EmployeeSchedule } from './database/entities/employee-schedule.entity';
 import { ShiftTemplate } from './database/entities/shift-template.entity';
+import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
+import { User } from './database/entities/user.entity';
 
 @Module({
   imports: [
@@ -32,12 +35,13 @@ import { ShiftTemplate } from './database/entities/shift-template.entity';
         PunchLog,
         Employee,
         EmployeeSchedule,
-        ShiftTemplate
+        ShiftTemplate,
+        User
         // ... 其他 Entity 
       ],
       synchronize: false, 
     }),
-    CommonModule, PunchModule, EmployeeModule,
+    CommonModule, PunchModule, EmployeeModule, UserModule, AuthModule
   ],
   controllers: [AppController],
   providers: [AppService],
