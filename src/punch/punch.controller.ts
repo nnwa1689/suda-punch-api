@@ -1,9 +1,11 @@
 // src/punch/punch.controller.ts
-import { Controller, Post, Body, HttpCode, HttpStatus, UseGuards, BadRequestException, Request} from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, UseGuards, BadRequestException, Request, Get, Query, ValidationPipe, Req} from '@nestjs/common';
 import { PunchService } from './punch/punch.service';
 import { PunchDto } from 'src/database/dto/punch.dto'; 
 import { AuthGuard } from '@nestjs/passport';
 import moment from 'moment';
+import { HrQueryPunchDto } from 'src/database/dto/hr-query-punch.dto';
+import { MyPunchQueryDto } from 'src/database/dto/my-punch-query.dto';
 
 @Controller('api/v1/punch')
 export class PunchController {
@@ -33,6 +35,35 @@ export class PunchController {
       punch_id: result.id,
       punch_time: moment(result.punch_time).utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
       //status: result.status,
+    };
+  }
+
+  @UseGuards(AuthGuard('jwt')) // 建議之後加入 @Roles('admin') 守衛
+  @Post('admin/all')
+  async hrGetAllRecords(@Body() dto: HrQueryPunchDto) {
+    // 實務上這裡應檢查 req.user.role 是否為 HR/Admin
+    const records = await this.punchService.getAdminPunchRecords(dto);
+    
+    return {
+      success: true,
+      count: records.length,
+      data: records
+    };
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post('my-records') // 員工專用路徑
+  async getMyRecords(
+    @Req() req: any, 
+    @Body() query: MyPunchQueryDto
+  ) {
+    // 從 JWT 解析後的 user 物件取得 id (假設 key 名稱為 sub 或 id)
+    const employeeId = req.user.employeeId; 
+    const result = await this.punchService.getMyPunchRecords(employeeId, query);
+    
+    return {
+      success: true,
+      ...result
     };
   }
 }

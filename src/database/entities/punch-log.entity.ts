@@ -1,5 +1,6 @@
 // src/database/entities/punch-log.entity.ts
-import { Entity, PrimaryColumn, Column, Index } from 'typeorm';
+import { Entity, PrimaryColumn, Column, Index, OneToOne, JoinColumn } from 'typeorm';
+import { Employee } from './employee.entity';
 
 @Entity('punch_logs')
 @Index(['employee_id', 'punch_time']) // 加快按員工和時間查詢
@@ -40,4 +41,9 @@ export class PunchLog {
 
   @Column({ type: 'boolean', default: false })
   is_early: boolean;
+
+  // 關聯到員工表
+  @OneToOne(() => Employee)
+  @JoinColumn({ name: 'employee_id' })
+  employee: Employee;
 }

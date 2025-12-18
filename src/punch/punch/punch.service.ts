@@ -8,6 +8,8 @@ import { PunchPoint } from '../../database/entities/punch-point.entity';
 import { DeviceService } from '../../common/device/device.service';
 import { GeoService } from '../../common/geo/geo.service';
 import { EmployeeScheduleService } from 'src/employee/employee-schedule/employee-schedule.service';
+import { HrQueryPunchDto } from 'src/database/dto/hr-query-punch.dto';
+import { MyPunchQueryDto } from 'src/database/dto/my-punch-query.dto';
 
 @Injectable()
 export class PunchService {
@@ -90,6 +92,70 @@ export class PunchService {
     const savedLog = await this.logsRepository.save(log);
     // 4. **（未來）考勤狀態更新**：這裡應該更新日彙總考勤表和快取 (如果 Redis 被啟用)
     return savedLog;
+  }
+
+  // 後台-條件查詢所有人打卡紀錄
+  async getAdminPunchRecords(query: HrQueryPunchDto) {
+    const { startDate, endDate, employeeId, departmentId, page = 1, limit = 10 } = query;
+
+    // 計算要跳過多少筆紀錄
+  const skip = (page - 1) * limit;
+
+  const queryBuilder = this.logsRepository.createQueryBuilder('punch')
+    .leftJoinAndSelect('punch.employee', 'employee')
+    .orderBy('punch.punch_time', 'DESC')
+    .skip(skip)
+    .take(limit);
+
+    // 1. 按日期區間篩選
+    if (startDate && endDate) {
+      queryBuilder.andWhere('punch.punch_time BETWEEN :startDate AND :endDate', { 
+        startDate: `${startDate} 00:00:00`, 
+        endDate: `${endDate} 23:59:59` 
+      });
+    }
+
+    // 2. 按特定人員篩選
+    if (employeeId) {
+      queryBuilder.andWhere('punch.employee_id = :employeeId', { employeeId });
+    }
+
+    // 3. 按部門篩選 (假設 employee 實體中有 department_id)
+    if (departmentId) {
+      queryBuilder.andWhere('employee.department_id = :departmentId', { departmentId });
+    }
+
+    return await queryBuilder.getMany();
+  }
+
+  async getMyPunchRecords(employeeId: string, query: MyPunchQueryDto) {
+    const { startDate, endDate, page = 1, limit = 10 } = query;
+    const skip = (page - 1) * limit;
+
+    const queryBuilder = this.logsRepository.createQueryBuilder('punch')
+      .where('punch.employee_id = :employeeId', { employeeId }) // 強制過濾該員工
+      .orderBy('punch.punch_time', 'DESC')
+      .skip(skip)
+      .take(limit);
+
+    if (startDate && endDate) {
+      queryBuilder.andWhere('punch.punch_time BETWEEN :startDate AND :endDate', { 
+        startDate: `${startDate} 00:00:00`, 
+        endDate: `${endDate} 23:59:59` 
+      });
+    }
+
+    const [data, total] = await queryBuilder.getManyAndCount();
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
+    };
   }
 
   // [新增] 根據員工和日期，取得排班記錄
