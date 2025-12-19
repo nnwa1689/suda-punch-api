@@ -16,13 +16,20 @@ export class EmployeeScheduleService {
     private templateRepository: Repository<ShiftTemplate>,
   ) {}
 
-  // 1. 查詢所有排班 (自動載入員工和模板資訊)
+  /**
+   * 查詢所有排班 (自動載入員工和模板資訊)
+   * @returns 
+   */
   async findAll(): Promise<EmployeeSchedule[]> {
     // 使用 relations 載入關聯資料，便於後台管理介面展示
     return this.scheduleRepository.find({ relations: ['employee', 'template'] });
   }
 
-  // 2. 根據 ID 查詢單個排班
+  /**
+   * 根據 SCHE ID 查詢單個排班
+   * @param id 
+   * @returns 
+   */
   async findById(id: string): Promise<EmployeeSchedule> {
     const schedule = await this.scheduleRepository.findOne({ 
         where: { id },
@@ -34,7 +41,11 @@ export class EmployeeScheduleService {
     return schedule;
   }
 
-  // 3. 新增排班
+  /**
+   * 新增排班
+   * @param dto 
+   * @returns 
+   */
   async create(dto: CreateEmployeeScheduleDto): Promise<EmployeeSchedule> {
     // 尋找班別模板是否存在
     const shiftTmeplateExist = await this.templateRepository.findOne({ where: { id: dto.shiftTemplateId } });
@@ -67,7 +78,12 @@ export class EmployeeScheduleService {
     }
   }
 
-  // 4. 更新排班 (使用 findOne + save 模式)
+  /**
+   * 更新排班 (使用 findOne + save 模式)
+   * @param id 
+   * @param dto 
+   * @returns 
+   */
   async update(id: string, dto: Partial<CreateEmployeeScheduleDto>): Promise<EmployeeSchedule> {
     const schedule = await this.findById(id); // 驗證記錄是否存在
     // 根據 DTO 更新對應的欄位
@@ -90,7 +106,10 @@ export class EmployeeScheduleService {
     return this.scheduleRepository.save(schedule);
   }
 
-  // 5. 刪除排班
+  /**
+   * 刪除排班(實際執行DEL動作)
+   * @param id 
+   */
   async remove(id: string): Promise<void> {
     const result = await this.scheduleRepository.delete(id);
     if (result.affected === 0) {
@@ -103,7 +122,7 @@ export class EmployeeScheduleService {
      * @param employeeId 員工 UUID
      * @param date 要查詢的日期
      */
-    async findByEmployeeAndDate(employeeId: string, date: Date): Promise<EmployeeSchedule | null> {
+  async findByEmployeeAndDate(employeeId: string, date: Date): Promise<EmployeeSchedule | null> {
         // 註: 為了精確匹配日期，您可能需要將 date 轉換為 YYYY-MM-DD 格式，
         // 或使用資料庫特定的日期函數。這裡假設您的資料庫設定能接受 Date 物件的日期部分。
         
@@ -125,4 +144,27 @@ export class EmployeeScheduleService {
             relations: ['employee', 'template'], // 必須載入 template 才能判斷遲到
         });
     }
+
+  /**
+   * 取得特定人員最新排班紀錄
+   * @param employeeId 
+   * @returns 
+   */
+  async getNearestSchedule(employeeId: string) {
+    const now = new Date();
+    const todayStr = now.toISOString().split('T')[0];
+
+    const schedule = await this.scheduleRepository.createQueryBuilder('schedule')
+      // 1. 關聯 shift_templates 表
+      // 假設實體中的關聯屬性名為 shiftTemplate
+      .leftJoinAndSelect('schedule.template', 'shift') 
+      .where('schedule.employee_id = :employeeId', { employeeId })
+      .andWhere('schedule.schedule_date >= :today', { today: todayStr })
+      .orderBy('schedule.schedule_date', 'ASC')
+      .addOrderBy('shift.start_time_h', 'ASC')
+      .addOrderBy('shift.start_time_m', 'ASC')
+      .getOne();
+
+    return schedule;
+  }
 }

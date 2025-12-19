@@ -29,6 +29,9 @@ import { User } from './database/entities/user.entity';
       username: process.env.DB_USERNAME || 'suda_user',
       password: process.env.DB_PASSWORD || 'your_strong_password',
       database: process.env.DB_DATABASE || 'suda_db',
+      extra: {
+        timezone: process.env.TIME_ZONE || 'Asia/Taipei', 
+      },
       entities: [
         PunchPoint,
         EmployeeDevice,

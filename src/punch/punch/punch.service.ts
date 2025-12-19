@@ -94,7 +94,23 @@ export class PunchService {
     return savedLog;
   }
 
-  // 後台-條件查詢所有人打卡紀錄
+  /**
+   * 取得特定人員最後一筆打卡紀錄
+   * @param employeeId 
+   * @returns 
+   */
+  async getLastPunch(employeeId: string) {
+    return await this.logsRepository.findOne({
+      where: { employee_id: employeeId },
+      order: { punch_time: 'DESC' }, // 抓最新的一筆
+    });
+  }
+
+  /**
+   *  後台-條件查詢所有人打卡紀錄
+   * @param query 
+   * @returns 
+   */
   async getAdminPunchRecords(query: HrQueryPunchDto) {
     const { startDate, endDate, employeeId, departmentId, page = 1, limit = 10 } = query;
 
@@ -128,6 +144,12 @@ export class PunchService {
     return await queryBuilder.getMany();
   }
 
+  /**
+   * 取得個人所有的打卡紀錄-JWT TOKEN
+   * @param employeeId 
+   * @param query 
+   * @returns 
+   */
   async getMyPunchRecords(employeeId: string, query: MyPunchQueryDto) {
     const { startDate, endDate, page = 1, limit = 10 } = query;
     const skip = (page - 1) * limit;
@@ -158,7 +180,12 @@ export class PunchService {
     };
   }
 
-  // [新增] 根據員工和日期，取得排班記錄
+  /**
+   * 根據員工和日期，取得排班記錄
+   * @param employeeId 
+   * @param date 
+   * @returns 
+   */
   private async getEmployeeSchedule(employeeId: string, date: Date): Promise<any> {
       // 呼叫 EmployeeScheduleService 查找排班
       // 您可能需要在 EmployeeScheduleService 中新增一個 findByEmployeeAndDate 方法
@@ -172,7 +199,13 @@ export class PunchService {
       return schedule;
   }
 
-  // [新增] 計算是否遲到
+
+  /**
+   * 計算是否遲到
+   * @param schedule 
+   * @param punchTime 
+   * @returns 
+   */
   private calculateLateStatus(schedule: any, punchTime: Date): boolean {
       if (!schedule) {
           return false; // 無排班不判斷遲到
@@ -192,7 +225,12 @@ export class PunchService {
       return punchTime.getTime() > scheduledStartTime.getTime();
   }
 
-  // [新增] 計算是否早退
+  /**
+   * 計算是否早退
+   * @param schedule 
+   * @param punchTime 
+   * @returns 
+   */
   private calculateEarlyStatus(schedule: any, punchTime: Date): boolean {
       if (!schedule) {
           return false; // 無排班不判斷遲到

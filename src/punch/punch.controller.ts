@@ -11,6 +11,12 @@ import { MyPunchQueryDto } from 'src/database/dto/my-punch-query.dto';
 export class PunchController {
   constructor(private readonly punchService: PunchService) {}
 
+  /**
+   * 打卡API
+   * @param req 
+   * @param body 
+   * @returns 
+   */
   @UseGuards(AuthGuard('jwt'))
   @Post()
   @HttpCode(HttpStatus.OK)
@@ -38,6 +44,11 @@ export class PunchController {
     };
   }
 
+  /**
+   * 取得所有人員打卡寄紀錄（後台）
+   * @param dto 
+   * @returns 
+   */
   @UseGuards(AuthGuard('jwt')) // 建議之後加入 @Roles('admin') 守衛
   @Post('admin/all')
   async hrGetAllRecords(@Body() dto: HrQueryPunchDto) {
@@ -51,6 +62,12 @@ export class PunchController {
     };
   }
 
+  /**
+   * 取得員工所有打卡紀錄
+   * @param req 
+   * @param query 
+   * @returns 
+   */
   @UseGuards(AuthGuard('jwt'))
   @Post('my-records') // 員工專用路徑
   async getMyRecords(
@@ -64,6 +81,23 @@ export class PunchController {
     return {
       success: true,
       ...result
+    };
+  }
+
+  /**
+   * 取得特定員工最後一筆打卡資料
+   * @param req 
+   * @returns 
+   */
+  @UseGuards(AuthGuard('jwt'))
+  @Get('last')
+  async getLastPunch(@Req() req: any) {
+    const employeeId = req.user.employeeId;
+    const lastPunch = await this.punchService.getLastPunch(employeeId);
+    
+    return {
+      success: true,
+      data: lastPunch || null // 如果從未打過卡，回傳 null
     };
   }
 }
