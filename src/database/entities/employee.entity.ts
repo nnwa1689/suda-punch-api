@@ -21,4 +21,10 @@ export class Employee {
   // 注意：'time with time zone' 在 TypeORM 中通常仍映射為 Date，但會丟失日期部分
   @Column({ type: 'timestamp with time zone', default: () => 'now()' })
   created_at: Date; 
+
+  @Column({ type: 'timestamp with time zone', default: () => 'CURRENT_TIMESTAMP' })
+  updated_at: Date;
+
+  @Column({ type: 'timestamp with time zone', default: () => 'now()' })
+  arrival: Date; 
 }

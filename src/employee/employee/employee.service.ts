@@ -29,7 +29,8 @@ export class EmployeeService {
                 id: dto.id,
                 name: dto.name,
                 is_active: dto.isActive,
-                department_id: dto.departmentId
+                department_id: dto.departmentId,
+                arrival: dto.arrival
             }
         );
         return this.employeeRepository.save(newEmployee);
@@ -47,7 +48,8 @@ export class EmployeeService {
             {
                 name: dto.name,
                 department_id: dto.departmentId,
-                is_active: dto.isActive
+                is_active: dto.isActive,
+                arrival: dto.arrival
             }
         );
         // 檢查是否有記錄被影響

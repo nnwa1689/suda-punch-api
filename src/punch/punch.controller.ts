@@ -39,7 +39,8 @@ export class PunchController {
     return {
       message: '打卡請求已處理，GPS 和裝置驗證通過。',
       punch_id: result.id,
-      punch_time: moment(result.punch_time).utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
+      punch_time: result.punch_time,
+      //moment(result.punch_time).utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
       //status: result.status,
     };
   }
