@@ -15,6 +15,7 @@ import { ShiftTemplate } from './database/entities/shift-template.entity';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { User } from './database/entities/user.entity';
+import { Department } from './database/entities/department.entity';
 
 @Module({
   imports: [
@@ -39,7 +40,8 @@ import { User } from './database/entities/user.entity';
         Employee,
         EmployeeSchedule,
         ShiftTemplate,
-        User
+        User,
+        Department
         // ... 其他 Entity 
       ],
       synchronize: false, 

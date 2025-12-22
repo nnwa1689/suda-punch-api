@@ -10,17 +10,21 @@ import { EmployeeScheduleController } from './employee-schedule/employee-schedul
 import { EmployeeScheduleService } from './employee-schedule/employee-schedule.service';
 import { ShiftTemplateController } from './shift-template/shift-template.controller';
 import { ShiftTemplateService } from './shift-template/shift-template.service';
+import { DepartmentsService } from './departments/departments.service';
+import { DepartmentsController } from './departments/departments.controller';
+import { Department } from 'src/database/entities/department.entity';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       Employee, 
       ShiftTemplate, 
-      EmployeeSchedule // 註冊所有相關 Entity
+      EmployeeSchedule,
+      Department // 註冊所有相關 Entity
     ]),
   ],
-  controllers: [EmployeeController, EmployeeScheduleController, ShiftTemplateController],
-  providers: [EmployeeService, EmployeeScheduleService, ShiftTemplateService],
-  exports: [EmployeeService, EmployeeScheduleService], // 確保其他模組可以讀取員工資料
+  controllers: [EmployeeController, EmployeeScheduleController, ShiftTemplateController, DepartmentsController],
+  providers: [EmployeeService, EmployeeScheduleService, ShiftTemplateService, DepartmentsService],
+  exports: [EmployeeService, EmployeeScheduleService, DepartmentsService], // 確保其他模組可以讀取員工資料
 })
 export class EmployeeModule {}

@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Employee } from '../../database/entities/employee.entity';
 import { CreateEmployeeDto } from '../../database/dto/employee-config.dto';
+import { ListEmployeeQueryDto } from 'src/database/dto/list-employee-query.dto';
 
 @Injectable()
 export class EmployeeService {
@@ -12,9 +13,56 @@ export class EmployeeService {
         private employeeRepository: Repository<Employee>,
     ) {}
 
-    // 1. 查詢所有員工
-    async findAll(): Promise<Employee[]> {
-        return this.employeeRepository.find();
+    /**
+     * 查詢所有員工
+     * @returns 
+     */
+    async findAll(query: ListEmployeeQueryDto) {
+        const { page = 1, limit = 10, name, departmentId, isActive } = query;
+        const skip = (page - 1) * limit;
+
+        const queryBuilder = this.employeeRepository.createQueryBuilder('emp')
+            // 如果你有設定關聯，可以抓取部門名稱
+            .leftJoinAndSelect('emp.department', 'dept') 
+            .select([
+            'emp.id',
+            'emp.name',
+            'emp.department_id',
+            'emp.is_active',
+            'emp.arrival',
+            'emp.created_at',
+            'dept.name' // 假設部門表有 name 欄位
+            ]);
+
+        // --- 動態篩選條件 ---
+        if (name) {
+            queryBuilder.andWhere('emp.name ILIKE :name', { name: `%${name}%` });
+        }
+
+        if (departmentId) {
+            queryBuilder.andWhere('emp.department_id = :deptId', { deptId: departmentId });
+        }
+
+        if (isActive !== undefined) {
+            queryBuilder.andWhere('emp.is_active = :isActive', { isActive: isActive === 'true' });
+        }
+
+        // --- 分頁與排序 ---
+        const [data, total] = await queryBuilder
+            .orderBy('emp.created_at', 'DESC')
+            .skip(skip)
+            .take(limit)
+            .getManyAndCount();
+
+        return {
+            data,
+            meta: {
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit)
+            }
+        };
     }
 
     // 2. 新增員工

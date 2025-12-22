@@ -1,8 +1,9 @@
 // src/employee/employee.controller.ts
-import { Controller, Get, Post, Body, HttpCode, HttpStatus, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, HttpCode, HttpStatus, Param, UseGuards, Query } from '@nestjs/common';
 import { EmployeeService } from './employee.service';
 import { CreateEmployeeDto } from '../../database/dto/employee-config.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { ListEmployeeQueryDto } from 'src/database/dto/list-employee-query.dto';
 
 @Controller('api/v1')
 export class EmployeeController {
@@ -10,8 +11,8 @@ export class EmployeeController {
 
     @UseGuards(AuthGuard('jwt'))
     @Get('employees')
-    async findAll() {
-        return this.employeeService.findAll();
+    async findAll(@Query() query: ListEmployeeQueryDto) {
+        return this.employeeService.findAll(query);
     }
 
     @UseGuards(AuthGuard('jwt'))

@@ -1,5 +1,6 @@
 // src/database/entities/employee.entity.ts
-import { Entity, PrimaryColumn, Column } from 'typeorm';
+import { Entity, PrimaryColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Department } from './department.entity';
 
 @Entity('employees')
 export class Employee {
@@ -11,8 +12,13 @@ export class Employee {
   name: string; // 員工姓名
 
   // *** 變動 2：新增 department_id ***
-  @Column({ type: 'varchar', length: 100 })
+  @Column()
   department_id: string; 
+
+  // 關聯設定：多個員工對應一個部門
+  @ManyToOne(() => Department, (department) => department.employees)
+  @JoinColumn({ name: 'department_id' }) // 指定外鍵欄位
+  department: Department;
 
   @Column({ default: true })
   is_active: boolean; 
