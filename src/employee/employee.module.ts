@@ -13,6 +13,7 @@ import { ShiftTemplateService } from './shift-template/shift-template.service';
 import { DepartmentsService } from './departments/departments.service';
 import { DepartmentsController } from './departments/departments.controller';
 import { Department } from 'src/database/entities/department.entity';
+import { GeoService } from 'src/common/geo/geo.service';
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import { Department } from 'src/database/entities/department.entity';
     ]),
   ],
   controllers: [EmployeeController, EmployeeScheduleController, ShiftTemplateController, DepartmentsController],
-  providers: [EmployeeService, EmployeeScheduleService, ShiftTemplateService, DepartmentsService],
+  providers: [EmployeeService, EmployeeScheduleService, ShiftTemplateService, DepartmentsService,  GeoService],
   exports: [EmployeeService, EmployeeScheduleService, DepartmentsService], // 確保其他模組可以讀取員工資料
 })
 export class EmployeeModule {}

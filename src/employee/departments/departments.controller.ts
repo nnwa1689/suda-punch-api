@@ -33,4 +33,6 @@ export class DepartmentsController {
   update(@Param('id') id: string, @Body() updateDto: UpdateDepartmentDto) {
     return this.deptService.update(id, updateDto);
   }
+
+  //TODO: 未來新增可透過id及名稱查詢部門，應用於部門選擇器
 }

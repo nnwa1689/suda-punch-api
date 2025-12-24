@@ -40,6 +40,6 @@ export class ShiftTemplateController {
   @Post('toggleIsActive/:id') // 停用班別
   @HttpCode(HttpStatus.OK)
   async toggleIsActive(@Param('id') id: string) {
-    await this.templateService.toggleIsActive(id);
+    return await this.templateService.toggleIsActive(id);
   }
 }

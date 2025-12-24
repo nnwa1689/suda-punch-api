@@ -5,21 +5,23 @@ import { Employee } from './employee.entity';
 
 @Entity('employee_schedule')
 export class EmployeeSchedule {
-  // *** 變動 1：id 改為 UUID 並由 DB 自動產生 ***
   @PrimaryColumn( { type:'uuid' })
   id: string;
 
-  @Column({ type: 'varchar', length: 100 })
+  @Column({ type: 'character varying', length: 100 })
   employee_id: string; 
 
   @Column({ type: 'date' })
   schedule_date: Date; // 排班的日期
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'character varying' })
   shift_template_id: string;
 
   @Column({ type: 'timestamp with time zone', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
+
+  @Column({ type: 'character varying' })
+  schedule_type: string; //fixed (循環) 與 daily (每日排班)。
 
   @Column({ type: 'timestamp with time zone', default: () => 'CURRENT_TIMESTAMP' })
   updated_at: Date;

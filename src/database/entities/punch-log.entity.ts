@@ -41,6 +41,9 @@ export class PunchLog {
 
   @Column({ type: 'boolean', default: false })
   is_early: boolean;
+ 
+  @Column({ type: 'character', nullable: true })
+  remark: string;
 
   // 關聯到員工表
   @OneToOne(() => Employee)

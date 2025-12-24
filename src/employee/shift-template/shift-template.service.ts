@@ -62,7 +62,6 @@ export class ShiftTemplateService {
     return this.templateRepository.save(template);
   }
 
-  // 5. 刪除班別模板
   async toggleIsActive(id: string): Promise<ShiftTemplate> {
     const template = await this.findById(id);
     if (template == null) {

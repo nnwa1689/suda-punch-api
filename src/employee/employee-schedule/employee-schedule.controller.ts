@@ -1,5 +1,5 @@
 // src/employee/employee-schedule.controller.ts
-import { Controller, Get, Post, Body, HttpCode, HttpStatus, Param, Patch, Delete, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, HttpCode, HttpStatus, Param, Patch, Delete, UseGuards, Req, Query } from '@nestjs/common';
 import { EmployeeScheduleService } from './employee-schedule.service';
 import { CreateEmployeeScheduleDto } from '../../database/dto/employee-schedule-config.dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -14,8 +14,9 @@ export class EmployeeScheduleController {
    */
   @UseGuards(AuthGuard('jwt'))
   @Get()
-  async findAll() {
-    return this.scheduleService.findAll();
+  // 增加 page 和 limit 查詢參數
+  async findAll(@Query() query: any) {
+    return this.scheduleService.findAll(query);
   }
 
   /**
@@ -51,7 +52,7 @@ export class EmployeeScheduleController {
   @Patch(':id')
   async update(
     @Param('id') id: string,
-    @Body() dto: Partial<CreateEmployeeScheduleDto>,
+    @Body() dto: CreateEmployeeScheduleDto,
   ) {
     return this.scheduleService.update(id, dto);
   }
