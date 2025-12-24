@@ -9,6 +9,7 @@ import { CommonModule } from '../common/common.module'; // 引入 Common 模組�
 import { EmployeeScheduleService } from 'src/employee/employee-schedule/employee-schedule.service';
 import { EmployeeSchedule } from 'src/database/entities/employee-schedule.entity';
 import { ShiftTemplate } from 'src/database/entities/shift-template.entity';
+import { Employee } from 'src/database/entities/employee.entity';
 
 @Module({
   imports: [
@@ -17,7 +18,8 @@ import { ShiftTemplate } from 'src/database/entities/shift-template.entity';
       PunchLog,
       PunchPoint,
       EmployeeSchedule,
-      ShiftTemplate
+      ShiftTemplate,
+      Employee
     ]),
     CommonModule, // 允許 PunchModule 注入 GeoService
   ],

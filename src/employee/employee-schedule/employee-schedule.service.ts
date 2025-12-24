@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { ShiftTemplate } from 'src/database/entities/shift-template.entity';
 import { GeoService } from 'src/common/geo/geo.service';
 import moment from 'moment';
+import { Employee } from 'src/database/entities/employee.entity';
 
 @Injectable()
 export class EmployeeScheduleService {
@@ -16,6 +17,8 @@ export class EmployeeScheduleService {
     private scheduleRepository: Repository<EmployeeSchedule>,
     @InjectRepository(ShiftTemplate)
     private templateRepository: Repository<ShiftTemplate>,
+    @InjectRepository(Employee)
+    private employeeRepository: Repository<Employee>,
     private geoService: GeoService,
   ) {}
 
@@ -57,6 +60,11 @@ export class EmployeeScheduleService {
    * @returns 
    */
   async create(dto: CreateEmployeeScheduleDto): Promise<EmployeeSchedule> {
+    // 確認員工是否存在
+    const employeeExist = await this.employeeRepository.findOne({ where: { id: dto.employeeId, is_active: true } });
+    if(!employeeExist){
+        throw new NotFoundException('找不到指定員工資料！');
+    }
     // 尋找班別模板是否存在
     const shiftTmeplateExist = await this.templateRepository.findOne({ where: { id: dto.shiftTemplateId } });
     // 建立排班 Entity，注意 DTO 欄位到 Entity 欄位的映射
