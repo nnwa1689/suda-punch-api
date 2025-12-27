@@ -1,6 +1,7 @@
 // src/database/entities/punch-log.entity.ts
 import { Entity, PrimaryColumn, Column, Index, OneToOne, JoinColumn } from 'typeorm';
 import { Employee } from './employee.entity';
+import { PunchPoint } from './punch-point.entity';
 
 @Entity('punch_logs')
 @Index(['employee_id', 'punch_time']) // 加快按員工和時間查詢
@@ -49,4 +50,9 @@ export class PunchLog {
   @OneToOne(() => Employee)
   @JoinColumn({ name: 'employee_id' })
   employee: Employee;
+
+  // 關聯到 pucnh point 表
+  @OneToOne(() => PunchPoint)
+  @JoinColumn({ name: 'punch_points_id' })
+  punchPoint: PunchPoint;
 }

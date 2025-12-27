@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, PrimaryColumn } from 'typeorm';
 
 @Entity('punch_points')
 export class PunchPoint {
@@ -13,7 +13,7 @@ export class PunchPoint {
 //     CONSTRAINT punch_points_pkey PRIMARY KEY (id)
 // )
 
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn()
   id: string;
 
   @Column({ length: 50 })

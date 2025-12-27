@@ -38,9 +38,11 @@ export class PunchController {
     
     return {
       message: '打卡請求已處理，GPS 和裝置驗證通過。',
-      punch_id: result.id,
-      punch_time: result.punch_time,
-      remark: result.remark
+      data:{
+        punch_id: result.id,
+        punch_time: result.punch_time,
+        remark: result.remark
+      }
     };
   }
 
@@ -80,7 +82,7 @@ export class PunchController {
     
     return {
       success: true,
-      ...result
+      data: result
     };
   }
 

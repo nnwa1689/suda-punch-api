@@ -11,20 +11,20 @@ export class ShiftTemplateController {
   @UseGuards(AuthGuard('jwt'))
   @Get() // 查詢所有
   async findAll() {
-    return this.templateService.findAll();
+    return { data: await this.templateService.findAll() };
   }
 
   @UseGuards(AuthGuard('jwt'))
   @Get(':id') // 查詢單個
   async findOne(@Param('id') id: string) {
-    return this.templateService.findById(id);
+    return { data: await this.templateService.findById(id) };
   }
 
   @UseGuards(AuthGuard('jwt'))
   @Post() // 新增
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() dto: CreateShiftTemplateDto) {
-    return this.templateService.create(dto);
+    return { data: await this.templateService.create(dto) };
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -33,13 +33,13 @@ export class ShiftTemplateController {
     @Param('id') id: string,
     @Body() dto: Partial<CreateShiftTemplateDto>,
   ) {
-    return this.templateService.update(id, dto);
+    return { data: await this.templateService.update(id, dto) };
   }
 
   @UseGuards(AuthGuard('jwt'))
   @Post('toggleIsActive/:id') // 停用班別
   @HttpCode(HttpStatus.OK)
   async toggleIsActive(@Param('id') id: string) {
-    return await this.templateService.toggleIsActive(id);
+    return { data: await this.templateService.toggleIsActive(id) };
   }
 }

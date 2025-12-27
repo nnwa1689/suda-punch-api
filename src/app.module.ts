@@ -16,6 +16,7 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { User } from './database/entities/user.entity';
 import { Department } from './database/entities/department.entity';
+import { PunchPointModule } from './punch-point/punch-point.module';
 
 @Module({
   imports: [
@@ -46,7 +47,7 @@ import { Department } from './database/entities/department.entity';
       ],
       synchronize: false, 
     }),
-    CommonModule, PunchModule, EmployeeModule, UserModule, AuthModule
+    CommonModule, PunchModule, EmployeeModule, UserModule, AuthModule, PunchPointModule
   ],
   controllers: [AppController],
   providers: [AppService],

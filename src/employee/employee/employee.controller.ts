@@ -12,20 +12,20 @@ export class EmployeeController {
     @UseGuards(AuthGuard('jwt'))
     @Get('employees')
     async findAll(@Query() query: ListEmployeeQueryDto) {
-        return this.employeeService.findAll(query);
+        return { data: await this.employeeService.findAll(query) };
     }
 
     @UseGuards(AuthGuard('jwt'))
     @Post('employee')
     @HttpCode(HttpStatus.CREATED)
     async create(@Body() dto: CreateEmployeeDto) {
-        return this.employeeService.create(dto);
+        return { data: await this.employeeService.create(dto) };
     }
 
     @UseGuards(AuthGuard('jwt'))
     @Get('employee/:id')
-    async findById(@Body('id') id: string) {
-        return this.employeeService.findById(id);
+    async findById(@Param('id') id: string) {
+        return { data: await this.employeeService.findById(id) };
     }
 
     // 更新員工資料
@@ -33,6 +33,6 @@ export class EmployeeController {
     @Post('employee/:id')
     @HttpCode(HttpStatus.OK)
     async update(@Param('id') id: string, @Body() dto: Partial<CreateEmployeeDto>) {
-        return this.employeeService.update(id, dto);
+        return { data: await this.employeeService.update(id, dto) };
     }
 }

@@ -12,26 +12,26 @@ export class DepartmentsController {
 
   @Post()
   @ApiOperation({ summary: '建立新部門' })
-  create(@Body() createDto: CreateDepartmentDto) {
-    return this.deptService.create(createDto);
+  async create(@Body() createDto: CreateDepartmentDto) {
+    return { data: await this.deptService.create(createDto) };
   }
 
   @Get()
   @ApiOperation({ summary: '獲取所有部門列表' })
-  findAll() {
-    return this.deptService.findAll();
+  async findAll() {
+    return { data: await this.deptService.findAll() };
   }
 
   @Get('active')
   @ApiOperation({ summary: '獲取啟用中的部門選單' })
-  getActive() {
-    return this.deptService.getActiveList();
+  async getActive() {
+    return { data: await this.deptService.getActiveList() };
   }
 
   @Patch(':id')
   @ApiOperation({ summary: '更新部門資料/停用' })
-  update(@Param('id') id: string, @Body() updateDto: UpdateDepartmentDto) {
-    return this.deptService.update(id, updateDto);
+  async update(@Param('id') id: string, @Body() updateDto: UpdateDepartmentDto) {
+    return { data: await this.deptService.update(id, updateDto) };
   }
 
   //TODO: 未來新增可透過id及名稱查詢部門，應用於部門選擇器

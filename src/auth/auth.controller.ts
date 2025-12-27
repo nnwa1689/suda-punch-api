@@ -8,6 +8,6 @@ export class AuthController {
 
   @Post('login')
   async login(@Body() loginDto: any) {
-    return this.authService.login(loginDto.username, loginDto.password);
+    return { data: await this.authService.login(loginDto.username, loginDto.password) };
   }
 }

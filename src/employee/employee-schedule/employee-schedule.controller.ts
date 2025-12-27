@@ -16,7 +16,7 @@ export class EmployeeScheduleController {
   @Get()
   // 增加 page 和 limit 查詢參數
   async findAll(@Query() query: any) {
-    return this.scheduleService.findAll(query);
+    return { data: await this.scheduleService.findAll(query) };
   }
 
   /**
@@ -27,7 +27,7 @@ export class EmployeeScheduleController {
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    return this.scheduleService.findById(id);
+    return { data: await this.scheduleService.findById(id) };
   }
 
   /**
@@ -39,7 +39,7 @@ export class EmployeeScheduleController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() dto: CreateEmployeeScheduleDto) {
-    return this.scheduleService.create(dto);
+    return { data: await this.scheduleService.create(dto) };
   }
 
   /**
@@ -54,7 +54,7 @@ export class EmployeeScheduleController {
     @Param('id') id: string,
     @Body() dto: CreateEmployeeScheduleDto,
   ) {
-    return this.scheduleService.update(id, dto);
+    return { data: await this.scheduleService.update(id, dto) };
   }
 
   /**
@@ -80,7 +80,7 @@ export class EmployeeScheduleController {
     const schedule = await this.scheduleService.getNearestSchedule(employeeId);
 
     if (!schedule || !schedule.template) {
-      return { success: true, message: '近期無排班', data: null };
+      return { message: '近期無排班', data: null };
     }
 
     const st = schedule.template;
@@ -91,8 +91,7 @@ export class EmployeeScheduleController {
     };
 
     return {
-      success: true,
-      data: {
+      data:{ 
         id: schedule.id,
         date: schedule.schedule_date,
         shift: {

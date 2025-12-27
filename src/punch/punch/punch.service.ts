@@ -98,6 +98,7 @@ export class PunchService {
    */
   async getLastPunch(employeeId: string) {
     return await this.logsRepository.findOne({
+      relations: ['punchPoint'],
       where: { employee_id: employeeId },
       order: { punch_time: 'DESC' }, // 抓最新的一筆
     });
