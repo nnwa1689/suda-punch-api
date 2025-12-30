@@ -1,6 +1,7 @@
 // src/database/entities/employee.entity.ts
-import { Entity, PrimaryColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryColumn, Column, ManyToOne, JoinColumn, OneToOne, OneToMany } from 'typeorm';
 import { Department } from './department.entity';
+import { EmployeeDevice } from './employee-device.entity';
 
 @Entity('employees')
 export class Employee {
@@ -19,6 +20,9 @@ export class Employee {
   @ManyToOne(() => Department, (department) => department.employees)
   @JoinColumn({ name: 'department_id' }) // 指定外鍵欄位
   department: Department;
+
+  @OneToOne(() => EmployeeDevice, (device) => device.employee)
+  active_device: EmployeeDevice;
 
   @Column({ default: true })
   is_active: boolean; 

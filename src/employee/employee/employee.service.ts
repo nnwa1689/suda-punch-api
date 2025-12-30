@@ -86,7 +86,18 @@ export class EmployeeService {
 
     //3. 根據 ID 查詢員工
     async findById(id: string): Promise<Employee | null> {
-        return this.employeeRepository.findOne({ where: { id } });
+        return this.employeeRepository.createQueryBuilder('employee')
+            .leftJoinAndSelect(
+                'employee.active_device', 
+                'devices',
+                'devices.is_active = :isActive', 
+                { isActive: true }
+            )
+            .where('employee.id = :id', { id })
+            .getOne();
+
+            
+            //.findOne({ where: { id } });
     }
 
     //4. 更新員工資料，包含停用

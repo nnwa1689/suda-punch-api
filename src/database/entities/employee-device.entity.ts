@@ -1,5 +1,6 @@
 // src/database/entities/employee-device.entity.ts
-import { Entity, PrimaryColumn, Column, Unique, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryColumn, Column, Unique, ManyToOne, JoinColumn, OneToOne } from 'typeorm';
+import { Employee } from './employee.entity';
 // 這裡假設您稍後會建立 Employee Entity
 // import { Employee } from './employee.entity'; 
 
@@ -39,6 +40,10 @@ export class EmployeeDevice {
 
   @Column({ type: 'timestamp with time zone', default: () => 'NOW()' })
   created_at : Date;
+
+  @OneToOne(() => Employee, (employee) => employee.active_device)
+  @JoinColumn({ name: 'employee_id' })
+  employee: Employee;
   
   // 建立與 Employee 表格的關聯 (為簡潔起見，暫時註釋掉實際的 ManyToOne 關係)
   /*
