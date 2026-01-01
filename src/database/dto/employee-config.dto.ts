@@ -10,7 +10,8 @@ export class CreateEmployeeDto {
   @IsBoolean()
   readonly isActive: boolean;
   @IsOptional()
-  @IsDateString()
-  arrival?: string;
+  //@IsDateString()
+  readonly arrival?: string;
+  @IsString()
   readonly departmentId: string;
 }
