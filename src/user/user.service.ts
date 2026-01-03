@@ -14,11 +14,16 @@ export class UserService {
   ) {}
 
   async findByUsername(username: string): Promise<User | null> {
-    return this.userRepository.findOne({
-      where: { username, is_active: true },
+    const user = await this.userRepository.findOne({
+      where: { username: username, is_active: true },
       // 登入時必須明確 select password，因為 entity 設定了 select: false
-      select: ['id', 'username', 'password', 'employee_id'], 
+      select: ['id', 'username', 'password', 'employee_id','is_active' ,'is_admin'], 
     });
+
+    if (!user) {
+      throw new NotFoundException('使用者不存在或未啟用');
+    }
+    return user;
   }
 
   // 供建立帳號使用

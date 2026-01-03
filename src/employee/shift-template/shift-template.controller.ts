@@ -3,6 +3,7 @@ import { Controller, Get, Post, Body, HttpCode, HttpStatus, Param, Patch, Delete
 import { ShiftTemplateService } from './shift-template.service';
 import { CreateShiftTemplateDto } from '../../database/dto/shift-template-config.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { AdminGuard } from 'src/auth/admin.guard';
 
 @Controller('api/v1/shift/template')
 export class ShiftTemplateController {
@@ -20,14 +21,14 @@ export class ShiftTemplateController {
     return { data: await this.templateService.findById(id) };
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), AdminGuard)
   @Post() // 新增
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() dto: CreateShiftTemplateDto) {
     return { data: await this.templateService.create(dto) };
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), AdminGuard)
   @Patch(':id') // 更新
   async update(
     @Param('id') id: string,
@@ -36,7 +37,7 @@ export class ShiftTemplateController {
     return { data: await this.templateService.update(id, dto) };
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), AdminGuard)
   @Post('toggleIsActive/:id') // 停用班別
   @HttpCode(HttpStatus.OK)
   async toggleIsActive(@Param('id') id: string) {

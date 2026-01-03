@@ -6,6 +6,7 @@ import { AuthGuard } from '@nestjs/passport';
 import moment from 'moment';
 import { HrQueryPunchDto } from 'src/database/dto/hr-query-punch.dto';
 import { MyPunchQueryDto } from 'src/database/dto/my-punch-query.dto';
+import { AdminGuard } from 'src/auth/admin.guard';
 
 @Controller('api/v1/punch')
 export class PunchController {
@@ -51,8 +52,8 @@ export class PunchController {
    * @param dto 
    * @returns 
    */
-  @UseGuards(AuthGuard('jwt')) // 建議之後加入 @Roles('admin') 守衛
-  @Post('admin/all')
+  @UseGuards(AuthGuard('jwt'), AdminGuard) // 建議之後加入 @Roles('admin') 守衛
+  @Post('all-records')
   async hrGetAllRecords(@Body() dto: HrQueryPunchDto) {
     // 實務上這裡應檢查 req.user.role 是否為 HR/Admin
     const records = await this.punchService.getAdminPunchRecords(dto);

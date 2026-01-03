@@ -3,6 +3,7 @@ import { Controller, Get, Post, Body, HttpCode, HttpStatus, Param, Patch, Delete
 import { EmployeeScheduleService } from './employee-schedule.service';
 import { CreateEmployeeScheduleDto } from '../../database/dto/employee-schedule-config.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { AdminGuard } from 'src/auth/admin.guard';
 
 @Controller('api/v1/schedule') // 使用專門的排班路徑
 export class EmployeeScheduleController {
@@ -12,7 +13,7 @@ export class EmployeeScheduleController {
    * 取得系統所有排班紀錄
    * @returns 
    */
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), AdminGuard)
   @Get()
   // 增加 page 和 limit 查詢參數
   async findAll(@Query() query: any) {
@@ -35,7 +36,7 @@ export class EmployeeScheduleController {
    * @param dto 
    * @returns 
    */
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), AdminGuard)
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() dto: CreateEmployeeScheduleDto) {
@@ -48,7 +49,7 @@ export class EmployeeScheduleController {
    * @param dto 
    * @returns 
    */
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), AdminGuard)
   @Patch(':id')
   async update(
     @Param('id') id: string,
@@ -61,7 +62,7 @@ export class EmployeeScheduleController {
    * 實際刪除一筆排班紀錄
    * @param id 
    */
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), AdminGuard)
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param('id') id: string) {
