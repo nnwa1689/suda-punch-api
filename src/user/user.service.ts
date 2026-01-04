@@ -14,11 +14,20 @@ export class UserService {
   ) {}
 
   async findByUsername(username: string): Promise<User | null> {
-    const user = await this.userRepository.findOne({
-      where: { username: username, is_active: true },
-      // 登入時必須明確 select password，因為 entity 設定了 select: false
-      select: ['id', 'username', 'password', 'employee_id','is_active' ,'is_admin'], 
-    });
+    const user = await this.userRepository.createQueryBuilder('user')
+      .select(['user.id', 'user.username', 'user.is_admin', 'user.is_active', 'user.employee_id', 'device.device_uuid'])
+      .leftJoinAndSelect('user.employee', 'employee')
+      .leftJoinAndSelect('employee.active_device', 'device', 'device.is_active = :isActive', { isActive: true })
+      .where('user.username = :username', { username })
+      .andWhere('user.is_active = :isActive', { isActive: true })
+      //.andWhere('device.is_active = :isActive', { isActive: true })
+      .getOne();
+
+    // const user = await this.userRepository.findOne({
+    //   where: { username: username, is_active: true },
+    //   // 登入時必須明確 select password，因為 entity 設定了 select: false
+    //   select: ['id', 'username', 'password', 'employee_id', 'is_active', 'is_admin'], 
+    // });
 
     if (!user) {
       throw new NotFoundException('使用者不存在或未啟用');

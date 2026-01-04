@@ -9,6 +9,7 @@ import { AdminGuard } from 'src/auth/admin.guard';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @UseGuards(AuthGuard('jwt'), AdminGuard)
   @Post('register')
   @UsePipes(new ValidationPipe()) // 啟用自動欄位驗證
   async register(@Body() registerUserDto: RegisterUserDto) {
@@ -48,6 +49,11 @@ export class UserController {
     };
   }
 
+  /**
+   * 取得自己使用者與裝置資訊
+   * @param req 
+   * @returns 
+   */
   @UseGuards(AuthGuard('jwt'))
   @Get('get/self')
   async getSelf(@Req() req: any) {
@@ -60,6 +66,14 @@ export class UserController {
         data: null,
       };
     }
+
+    // // 沒有啟用中的裝置
+    // if (user.employee.active_device === null) {
+    //   return {
+    //     message: '使用者沒有啟用中的裝置',
+    //     data: null,
+    //   };
+    // }
     
     return {
       message: '',
@@ -68,6 +82,7 @@ export class UserController {
         username: user?.username,
         isActive: user?.is_active,
         isAdmin: user?.is_admin,
+        activeDeviceUuid: user.employee.active_device == null ? "" : user.employee.active_device.device_uuid,
       }
     };
   }
