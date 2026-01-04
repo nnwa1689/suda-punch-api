@@ -15,7 +15,7 @@ export class UserService {
 
   async findByUsername(username: string): Promise<User | null> {
     const user = await this.userRepository.createQueryBuilder('user')
-      .select(['user.id', 'user.username', 'user.is_admin', 'user.is_active', 'user.employee_id', 'device.device_uuid'])
+      .select(['user.id', 'user.username','user.password', 'user.is_admin', 'user.is_active', 'user.employee_id', 'device.device_uuid'])
       .leftJoinAndSelect('user.employee', 'employee')
       .leftJoinAndSelect('employee.active_device', 'device', 'device.is_active = :isActive', { isActive: true })
       .where('user.username = :username', { username })
