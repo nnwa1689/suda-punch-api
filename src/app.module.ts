@@ -17,6 +17,8 @@ import { AuthModule } from './auth/auth.module';
 import { User } from './database/entities/user.entity';
 import { Department } from './database/entities/department.entity';
 import { PunchPointModule } from './punch-point/punch-point.module';
+import { HolidayModule } from './holiday/holiday.module';
+import { Holiday } from './database/entities/holidays.entity';
 
 @Module({
   imports: [
@@ -42,12 +44,12 @@ import { PunchPointModule } from './punch-point/punch-point.module';
         EmployeeSchedule,
         ShiftTemplate,
         User,
-        Department
-        // ... 其他 Entity 
+        Department,
+        Holiday
       ],
       synchronize: false, 
     }),
-    CommonModule, PunchModule, EmployeeModule, UserModule, AuthModule, PunchPointModule
+    CommonModule, PunchModule, EmployeeModule, UserModule, AuthModule, PunchPointModule, HolidayModule
   ],
   controllers: [AppController],
   providers: [AppService],
