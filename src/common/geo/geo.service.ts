@@ -19,4 +19,9 @@ export class GeoService {
       const now = new Date();
       return moment(now).utcOffset(process.env.TIME_ZONE || 'Asia/Taipei').toDate();
   }
+
+  getSystemTimeStr(): string {
+      const now = new Date();
+      return moment(now).utcOffset(process.env.TIME_ZONE || 'Asia/Taipei').format('YYYY-MM-DD');
+  }
 }

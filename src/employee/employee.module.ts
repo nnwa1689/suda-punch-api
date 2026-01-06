@@ -14,6 +14,8 @@ import { DepartmentsService } from './departments/departments.service';
 import { DepartmentsController } from './departments/departments.controller';
 import { Department } from 'src/database/entities/department.entity';
 import { GeoService } from 'src/common/geo/geo.service';
+import { HolidayService } from 'src/holiday/holiday.service';
+import { Holiday } from 'src/database/entities/holidays.entity';
 
 @Module({
   imports: [
@@ -21,11 +23,12 @@ import { GeoService } from 'src/common/geo/geo.service';
       Employee, 
       ShiftTemplate, 
       EmployeeSchedule,
-      Department // 註冊所有相關 Entity
+      Department,
+      Holiday
     ]),
   ],
   controllers: [EmployeeController, EmployeeScheduleController, ShiftTemplateController, DepartmentsController],
-  providers: [EmployeeService, EmployeeScheduleService, ShiftTemplateService, DepartmentsService,  GeoService],
+  providers: [EmployeeService, EmployeeScheduleService, ShiftTemplateService, DepartmentsService,  GeoService, HolidayService],
   exports: [EmployeeService, EmployeeScheduleService, DepartmentsService], // 確保其他模組可以讀取員工資料
 })
 export class EmployeeModule {}

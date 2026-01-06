@@ -1,13 +1,19 @@
 // src/employee/employee-schedule.controller.ts
 import { Controller, Get, Post, Body, HttpCode, HttpStatus, Param, Patch, Delete, UseGuards, Req, Query } from '@nestjs/common';
 import { EmployeeScheduleService } from './employee-schedule.service';
+import { HolidayService } from 'src/holiday/holiday.service';
+import { GeoService } from 'src/common/geo/geo.service';
 import { CreateEmployeeScheduleDto } from '../../database/dto/employee-schedule-config.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { AdminGuard } from 'src/auth/admin.guard';
 
 @Controller('api/v1/schedule') // 使用專門的排班路徑
 export class EmployeeScheduleController {
-  constructor(private readonly scheduleService: EmployeeScheduleService) {}
+  constructor(
+    private readonly scheduleService: EmployeeScheduleService, 
+    private readonly holidayService: HolidayService,
+    private readonly geoService: GeoService
+  ) {}
 
   /**
    * 取得系統所有排班紀錄
@@ -70,7 +76,7 @@ export class EmployeeScheduleController {
   }
 
   /**
-   * 取得特定人員最後一筆打卡紀錄(JWT)
+   * 取得特定人員最後一筆排班紀錄(via JWT)
    * @param req 
    * @returns 
    */
@@ -81,7 +87,12 @@ export class EmployeeScheduleController {
     const schedule = await this.scheduleService.getNearestSchedule(employeeId);
 
     if (!schedule || !schedule.template) {
-      return { message: '近期無排班', data: null };
+      return { message: '無排班', data: null };
+    } else {
+      const isHoliday = await this.holidayService.getHolidayWithDate(this.geoService.getSystemTimeStr());
+      if(isHoliday !== null) {
+        return { message: `無排班(${isHoliday.subject})`, data: null }; // 如果今天是例假日，則不回傳排班
+      }
     }
 
     const st = schedule.template;

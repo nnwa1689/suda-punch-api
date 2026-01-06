@@ -77,4 +77,11 @@ export class HolidayService {
     });
     return !!found;
   }
+
+  async getHolidayWithDate(date: string): Promise<Holiday | null> {
+    const found = await this.holidayRepository.findOne({
+      where: { date, is_holiday: true }
+    });
+    return found;
+  }
 }
