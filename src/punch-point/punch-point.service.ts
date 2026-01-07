@@ -27,8 +27,23 @@ export class PunchPointService {
     return this.punchPointRepository.save(punchPoint);
   }
 
-  async findAll() {
-    return this.punchPointRepository.find({ order: { id: 'ASC' } });
+  async findAll(keyword?: string) {
+    const queryBuilder = this.punchPointRepository.createQueryBuilder('punchPoint');
+
+    if (keyword) {
+      // 使用 Brackets (括號) 來包裹 OR 邏輯，確保查詢安全
+      queryBuilder.andWhere(
+        '(punchPoint.id ILIKE :id OR punchPoint.name ILIKE :name)',
+        { 
+          id: `%${keyword}%` ,              // ID 通常是精確匹配
+          name: `%${keyword}%`      // 名稱使用模糊匹配
+        }
+      );
+    }
+
+    return queryBuilder
+      .orderBy('punchPoint.id', 'ASC')
+      .getMany();
   }
 
   async findOne(id: string) {

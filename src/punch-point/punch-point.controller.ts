@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
 import { PunchPointService } from './punch-point.service';
 import { CreatePunchPointDto } from '../database/dto/create-punch-point.dto';
 import { UpdatePunchPointDto } from '../database/dto/update-punch-point.dto';
@@ -17,8 +17,8 @@ export class PunchPointController {
 
   @UseGuards(AuthGuard('jwt')) 
   @Get()
-  async findAll() {
-    return { data: await this.punchPointService.findAll() };
+  async findAll(@Query('q') q?: string) {
+    return { data: await this.punchPointService.findAll(q) };
   }
 
   @UseGuards(AuthGuard('jwt')) 
