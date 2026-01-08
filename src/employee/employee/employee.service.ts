@@ -93,6 +93,7 @@ export class EmployeeService {
                 'devices.is_active = :isActive', 
                 { isActive: true }
             )
+            .leftJoinAndSelect('employee.department', 'dept') 
             .where('employee.id = :id', { id })
             .getOne();
 

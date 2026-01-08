@@ -19,6 +19,7 @@ import { Department } from './database/entities/department.entity';
 import { PunchPointModule } from './punch-point/punch-point.module';
 import { HolidayModule } from './holiday/holiday.module';
 import { Holiday } from './database/entities/holidays.entity';
+import { SudaBase } from './database/entities/suda-base.entity';
 
 @Module({
   imports: [
@@ -45,7 +46,8 @@ import { Holiday } from './database/entities/holidays.entity';
         ShiftTemplate,
         User,
         Department,
-        Holiday
+        Holiday,
+        SudaBase
       ],
       synchronize: false, 
     }),
