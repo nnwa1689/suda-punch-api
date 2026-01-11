@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { v4 as uuid_v4 } from 'uuid';
 import { PunchLog } from '../../database/entities/punch-log.entity';
-import { PunchPoint } from '../../database/entities/punch-point.entity';
+import { PunchPoint, PunchVerifyType } from '../../database/entities/punch-point.entity';
 import { DeviceService } from '../../common/device/device.service';
 import { GeoService } from '../../common/geo/geo.service';
 import { EmployeeScheduleService } from 'src/employee/employee-schedule/employee-schedule.service';
@@ -33,7 +33,7 @@ export class PunchService {
    * @param lng 
    * @returns 
    */
-  async submitPunch(employeeId: string, deviceUuid: string, lat: number, lng: number, type: string, punch_points_id: string): Promise<PunchLog> {
+  async submitPunch(employeeId: string, deviceUuid: string, lat: number, lng: number, type: string, punch_points_id: string, currentSsid?: string, currentBssid?: string): Promise<PunchLog> {
     const punchTime = this.geoService.getSystemTime();
     var resultMessage: string = '';
     
@@ -50,14 +50,28 @@ export class PunchService {
       throw new NotFoundException('打卡點規則未設定或未啟用！');
     }
 
-    const distance:number = this.geoService.calculateDistance(
-      { latitude: lat, longitude: lng }, // 員工當前位置
-      { latitude: punchPoint.latitude, longitude: punchPoint.longitude } // 允許打卡點中心
-    );
+    if (punchPoint.verify_type === PunchVerifyType.WIFI) {
+      if (!currentSsid || !currentBssid) {
+        throw new BadRequestException('此地點要求開啟 WiFi 驗證，但未偵測到 WIFI 資訊');
+      }
+      // 進行 SSID 比對 (忽略大小寫或精確比對)
+      const normalizedBssid = currentBssid.toLowerCase();
+      const bssidWhitelist = (punchPoint.wifi_bssid_list || []).map(b => b.toLowerCase());
+      const isSsidValid = punchPoint.wifi_ssid?.toLowerCase() === currentSsid?.toLowerCase() && bssidWhitelist.includes(normalizedBssid);
+      
+      if (!isSsidValid) {
+        throw new BadRequestException(`WiFi 驗證失敗，非指定的 WiFi 設備。`);
+      }
+    } else if (punchPoint.verify_type === PunchVerifyType.GPS) {
+      const distance:number = this.geoService.calculateDistance(
+          { latitude: lat, longitude: lng }, // 員工當前位置
+          { latitude: punchPoint.latitude, longitude: punchPoint.longitude } // 允許打卡點中心
+        );
 
-    const isValidGps:boolean = distance <= punchPoint.radius_meters;
-    if (!isValidGps) {
-      throw new ForbiddenException(`打卡失敗：您距離最近打卡點 ${distance.toFixed(2)} 公尺，超出允許範圍 (${punchPoint.radius_meters}m)。`);
+      const isValidGps:boolean = distance <= punchPoint.radius_meters;
+      if (!isValidGps) {
+        throw new ForbiddenException(`打卡失敗：您距離最近打卡點 ${distance.toFixed(2)} 公尺，超出允許範圍 (${punchPoint.radius_meters}m)。`);
+      }
     }
 
     const schedule = await this.getEmployeeSchedule(employeeId, punchTime);

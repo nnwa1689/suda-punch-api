@@ -23,7 +23,19 @@ export class PunchPointService {
       throw new NotFoundException(`打卡點 ID ${createPunchPointDto.id} 已存在`);
     }
 
-    const punchPoint = this.punchPointRepository.create(createPunchPointDto);
+    const punchPointData = {
+      id: createPunchPointDto.id,
+      name: createPunchPointDto.name,
+      latitude: createPunchPointDto.latitude,
+      longitude: createPunchPointDto.longitude,
+      radius_meters: createPunchPointDto.radiusMeters ?? 100, // 轉換命名並給予預設值
+      is_active: createPunchPointDto.isActive ?? true,  // 轉換命名
+      verify_type: createPunchPointDto.verifyType,      // 轉換命名
+      wifi_ssid: createPunchPointDto.wifiSsid,          // 轉換命名
+      wifi_bssid_list: createPunchPointDto.wifiBssidList ?? [], // 轉換命名
+    };
+
+    const punchPoint = this.punchPointRepository.create(punchPointData);
     return this.punchPointRepository.save(punchPoint);
   }
 
@@ -65,7 +77,10 @@ export class PunchPointService {
         latitude: updatePunchPointDto.latitude,
         longitude: updatePunchPointDto.longitude,
         radius_meters: updatePunchPointDto.radiusMeters,
-        is_active: updatePunchPointDto.isActive
+        is_active: updatePunchPointDto.isActive,
+        verify_type: updatePunchPointDto.verifyType,      // 轉換命名
+        wifi_ssid: updatePunchPointDto.wifiSsid,          // 轉換命名
+        wifi_bssid_list: updatePunchPointDto.wifiBssidList ?? [], // 轉換命名
       });
     return this.punchPointRepository.findOne({ where: { id } });
   }

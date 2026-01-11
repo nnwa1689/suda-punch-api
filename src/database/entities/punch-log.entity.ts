@@ -6,16 +6,6 @@ import { PunchPoint } from './punch-point.entity';
 @Entity('punch_logs')
 @Index(['employee_id', 'punch_time']) // 加快按員工和時間查詢
 export class PunchLog {
-//   CREATE TABLE IF NOT EXISTS public.punch_logs
-// (
-//     employee_id character varying(100) COLLATE pg_catalog."default" NOT NULL,
-//     punch_time timestamp with time zone NOT NULL,
-//     punch_points_id character varying(100) COLLATE pg_catalog."default" NOT NULL,
-//     recorded_lat numeric(10,6) NOT NULL,
-//     recorded_lng numeric(10,6) NOT NULL,
-//     id uuid NOT NULL,
-//     CONSTRAINT punch_logs_pkey PRIMARY KEY (id)
-// )
   @PrimaryColumn({ type: 'uuid' })
   id: string;
 

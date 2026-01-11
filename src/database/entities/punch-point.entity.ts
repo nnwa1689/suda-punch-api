@@ -1,18 +1,13 @@
 import { Entity, PrimaryGeneratedColumn, Column, PrimaryColumn } from 'typeorm';
 
+export enum PunchVerifyType {
+  WFH = 'WFH',   // 居家辦公（通常結合 GPS 與 使用者綁定）
+  WIFI = 'WIFI', // 辦公室 WiFi 驗證（比對 SSID 或 BSSID）
+  GPS = 'GPS',   // 座標地點驗證（比對經緯度與半徑）
+}
+
 @Entity('punch_points')
 export class PunchPoint {
-
-    //CREATE TABLE IF NOT EXISTS public.punch_points
-// (
-//     id character varying(100) COLLATE pg_catalog."default" NOT NULL,
-//     name character varying(100) COLLATE pg_catalog."default" NOT NULL,
-//     latitude numeric(10,6) NOT NULL,
-//     longitude numeric(10,6) NOT NULL,
-//     radius_meters numeric(10,0) NOT NULL DEFAULT 10,
-//     CONSTRAINT punch_points_pkey PRIMARY KEY (id)
-// )
-
   @PrimaryColumn()
   id: string;
 
@@ -30,6 +25,19 @@ export class PunchPoint {
 
   @Column({ default: true })
   is_active: boolean;
+
+  @Column({
+    type: 'enum',
+    enum: PunchVerifyType,
+    comment: '驗證型態：WFH, WIFI, GPS'
+  })
+  verify_type: PunchVerifyType;
+
+  @Column({ nullable: true, comment: 'WiFi 的 SSID 名稱' })
+  wifi_ssid: string;
+
+  @Column('text', { array: true, nullable: true, comment: 'BSSID 白名單列表' })
+  wifi_bssid_list: string[];
 
   @Column({ type: 'timestamp with time zone', default: () => 'NOW()' })
   created_at: Date;
