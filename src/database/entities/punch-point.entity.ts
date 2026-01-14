@@ -36,6 +36,9 @@ export class PunchPoint {
   @Column({ nullable: true, comment: 'WiFi 的 SSID 名稱' })
   wifi_ssid: string;
 
+  @Column({ nullable: true, comment: 'Bluetooth 的 SerbiceID 名稱' })
+  bluetooth_service_uuid: string;
+
   @Column('text', { array: true, nullable: true, comment: 'BSSID 白名單列表' })
   wifi_bssid_list: string[];
 
