@@ -8,6 +8,16 @@ import { AppService } from './app.service';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalInterceptors(new ResponseInterceptor());
+
+  const origins = process.env.ALLOWED_ORIGINS?.split(',') ?? [];
+  console.log('Allowed Origins:', origins);
+
+  app.enableCors({
+    origin:  origins, // 准許前端端口
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+  });
+  
   const config = new DocumentBuilder()
   .setTitle('Suda 速打打卡系統 API')
   .setVersion(app.get(AppService).getVersion())
@@ -22,7 +32,7 @@ async function bootstrap() {
     forbidNonWhitelisted: true, // 如果傳入非定義欄位，直接噴錯
     transform: true,         // 自動將型別轉為 DTO 類別
   }));
-  
+
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
