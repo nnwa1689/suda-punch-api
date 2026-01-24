@@ -131,6 +131,7 @@ export class PunchService {
 
   const queryBuilder = this.logsRepository.createQueryBuilder('punch')
     .leftJoinAndSelect('punch.employee', 'employee')
+    .leftJoinAndSelect('employee.department', 'department')
     .orderBy('punch.punch_time', 'DESC')
     .skip(skip)
     .take(limit);

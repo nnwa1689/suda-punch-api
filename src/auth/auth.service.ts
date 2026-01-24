@@ -23,7 +23,8 @@ export class AuthService {
       username: user.username, 
       sub: user.id, 
       employeeId: user.employee_id,
-      isAdmin: user.is_admin
+      isAdmin: user.is_admin,
+      name: user.employee.name
     };
 
     return {
