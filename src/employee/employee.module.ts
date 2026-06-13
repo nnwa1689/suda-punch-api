@@ -12,10 +12,10 @@ import { ShiftTemplateController } from './shift-template/shift-template.control
 import { ShiftTemplateService } from './shift-template/shift-template.service';
 import { DepartmentsService } from './departments/departments.service';
 import { DepartmentsController } from './departments/departments.controller';
-import { Department } from 'src/database/entities/department.entity';
-import { GeoService } from 'src/common/geo/geo.service';
-import { HolidayService } from 'src/holiday/holiday.service';
-import { Holiday } from 'src/database/entities/holidays.entity';
+import { Department } from '../database/entities/department.entity';
+import { GeoService } from '../common/geo/geo.service';
+import { HolidayService } from '../holiday/holiday.service';
+import { Holiday } from '../database/entities/holidays.entity';
 
 @Module({
   imports: [

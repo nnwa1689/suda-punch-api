@@ -5,7 +5,7 @@ import { CreateDepartmentDto } from '../../database/dto/create-department.dto';
 import { UpdateDepartmentDto } from '../../database/dto/update-department.dto';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
-import { AdminGuard } from 'src/auth/admin.guard';
+import { AdminGuard } from '../../auth/admin.guard';
 
 @ApiTags('部門管理')
 @Controller('api/v1/departments')
@@ -31,6 +31,13 @@ export class DepartmentsController {
   @ApiOperation({ summary: '獲取啟用中的部門選單' })
   async getActive() {
     return { data: await this.deptService.getActiveList() };
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get(':id')
+  @ApiOperation({ summary: '獲取個別部門資料' })
+  async findOne(@Param('id') id: string) {
+    return { data: await this.deptService.findOne(id) };
   }
 
   @UseGuards(AuthGuard('jwt'), AdminGuard)

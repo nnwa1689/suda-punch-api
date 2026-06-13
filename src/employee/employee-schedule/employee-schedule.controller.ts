@@ -1,11 +1,11 @@
 // src/employee/employee-schedule.controller.ts
 import { Controller, Get, Post, Body, HttpCode, HttpStatus, Param, Patch, Delete, UseGuards, Req, Query } from '@nestjs/common';
 import { EmployeeScheduleService } from './employee-schedule.service';
-import { HolidayService } from 'src/holiday/holiday.service';
-import { GeoService } from 'src/common/geo/geo.service';
+import { HolidayService } from '../../holiday/holiday.service';
+import { GeoService } from '../../common/geo/geo.service';
 import { CreateEmployeeScheduleDto } from '../../database/dto/employee-schedule-config.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { AdminGuard } from 'src/auth/admin.guard';
+import { AdminGuard } from '../../auth/admin.guard';
 
 @Controller('api/v1/schedule') // 使用專門的排班路徑
 export class EmployeeScheduleController {

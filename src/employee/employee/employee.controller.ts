@@ -3,8 +3,8 @@ import { Controller, Get, Post, Body, HttpCode, HttpStatus, Param, UseGuards, Qu
 import { EmployeeService } from './employee.service';
 import { CreateEmployeeDto } from '../../database/dto/employee-config.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { ListEmployeeQueryDto } from 'src/database/dto/list-employee-query.dto';
-import { AdminGuard } from 'src/auth/admin.guard';
+import { ListEmployeeQueryDto } from '../../database/dto/list-employee-query.dto';
+import { AdminGuard } from '../../auth/admin.guard';
 
 @Controller('api/v1')
 export class EmployeeController {

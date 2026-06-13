@@ -3,7 +3,7 @@ import { PunchPointService } from './punch-point.service';
 import { CreatePunchPointDto } from '../database/dto/create-punch-point.dto';
 import { UpdatePunchPointDto } from '../database/dto/update-punch-point.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { AdminGuard } from 'src/auth/admin.guard';
+import { AdminGuard } from '../auth/admin.guard';
 
 @Controller('api/v1/punch-point')
 export class PunchPointController {

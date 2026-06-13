@@ -1,12 +1,12 @@
 // src/punch/punch.controller.ts
 import { Controller, Post, Body, HttpCode, HttpStatus, UseGuards, BadRequestException, Request, Get, Query, ValidationPipe, Req} from '@nestjs/common';
 import { PunchService } from './punch/punch.service';
-import { PunchDto } from 'src/database/dto/punch.dto'; 
+import { PunchDto } from '../database/dto/punch.dto'; 
 import { AuthGuard } from '@nestjs/passport';
 import moment from 'moment';
-import { HrQueryPunchDto } from 'src/database/dto/hr-query-punch.dto';
-import { MyPunchQueryDto } from 'src/database/dto/my-punch-query.dto';
-import { AdminGuard } from 'src/auth/admin.guard';
+import { HrQueryPunchDto } from '../database/dto/hr-query-punch.dto';
+import { MyPunchQueryDto } from '../database/dto/my-punch-query.dto';
+import { AdminGuard } from '../auth/admin.guard';
 
 @Controller('api/v1/punch')
 export class PunchController {

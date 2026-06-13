@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { SudaBase } from 'src/database/entities/suda-base.entity';
+import { SudaBase } from '../../database/entities/suda-base.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()

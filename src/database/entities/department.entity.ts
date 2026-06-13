@@ -13,6 +13,9 @@ export class Department {
   @Column({ type: 'varchar', length: 100 })
   parent_department_id: string;
 
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  manager_id: string;
+
   @Column({ type: 'boolean', default: true })
   is_active: boolean;
 

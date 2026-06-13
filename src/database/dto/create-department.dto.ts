@@ -17,4 +17,8 @@ export class CreateDepartmentDto {
   @IsOptional()
   @IsBoolean()
   is_active?: boolean = true;
+
+  @IsOptional()
+  @IsString()
+  manager_id?: string;
 }

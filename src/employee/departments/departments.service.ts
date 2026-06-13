@@ -21,8 +21,7 @@ export class DepartmentsService {
 
   // 2. 更新部門 (包含停用)
   async update(id: string, updateDto: UpdateDepartmentDto) {
-    const dept = await this.deptRepo.findOneBy({ id });
-    if (!dept) throw new NotFoundException('找不到該部門');
+    const dept = await this.findOne(id);
 
     // 商業邏輯：如果要停用部門，可以檢查是否還有在職員工 (選做)
     // if (updateDto.is_active === false) { ... }
@@ -42,8 +41,15 @@ export class DepartmentsService {
   async getActiveList() {
     return await this.deptRepo.find({
       where: { is_active: true },
-      select: ['id', 'name'],
+      select: ['id', 'name', 'manager_id'],
       order: { name: 'ASC' }
     });
+  }
+
+  // 5. 取得單一部門
+  async findOne(id: string) {
+    const dept = await this.deptRepo.findOneBy({ id });
+    if (!dept) throw new NotFoundException('找不到該部門');
+    return dept;
   }
 }

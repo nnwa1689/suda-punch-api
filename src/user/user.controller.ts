@@ -3,7 +3,7 @@ import { Controller, Post, Body, ValidationPipe, UsePipes, Get, UseGuards, Query
 import { UserService } from './user.service';
 import { RegisterUserDto } from '../database/dto/register-user.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { AdminGuard } from 'src/auth/admin.guard';
+import { AdminGuard } from '../auth/admin.guard';
 
 @Controller('api/v1/users')
 export class UserController {

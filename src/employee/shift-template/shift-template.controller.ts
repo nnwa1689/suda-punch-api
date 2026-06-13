@@ -3,7 +3,7 @@ import { Controller, Get, Post, Body, HttpCode, HttpStatus, Param, Patch, Delete
 import { ShiftTemplateService } from './shift-template.service';
 import { CreateShiftTemplateDto } from '../../database/dto/shift-template-config.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { AdminGuard } from 'src/auth/admin.guard';
+import { AdminGuard } from '../../auth/admin.guard';
 
 @Controller('api/v1/shift/template')
 export class ShiftTemplateController {

@@ -1,9 +1,9 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import moment from 'moment';
-import { SudaBase } from 'src/database/entities/suda-base.entity';
+import { SudaBase } from '../../database/entities/suda-base.entity';
 import { CommonService } from './common.service';
 import { AuthGuard } from '@nestjs/passport';
-import { UpdateSudaBaseDto } from 'src/database/dto/update-suda-base.dto';
+import { UpdateSudaBaseDto } from '../../database/dto/update-suda-base.dto';
 
 @Controller('api/v1/common')
 export class CommonController {

@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { EmployeeDevice } from '../../database/entities/employee-device.entity';
 import { DeviceBindingDto } from '../../database/dto/device-binding.dto';
-import { Employee } from 'src/database/entities/employee.entity';
+import { Employee } from '../../database/entities/employee.entity';
 
 @Injectable()
 export class DeviceService {

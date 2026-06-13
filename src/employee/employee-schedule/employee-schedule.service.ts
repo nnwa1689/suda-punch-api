@@ -5,10 +5,10 @@ import { Between, Not, Repository } from 'typeorm';
 import { EmployeeSchedule } from '../../database/entities/employee-schedule.entity';
 import { CreateEmployeeScheduleDto } from '../../database/dto/employee-schedule-config.dto';
 import { v4 as uuidv4 } from 'uuid';
-import { ShiftTemplate } from 'src/database/entities/shift-template.entity';
-import { GeoService } from 'src/common/geo/geo.service';
+import { ShiftTemplate } from '../../database/entities/shift-template.entity';
+import { GeoService } from '../../common/geo/geo.service';
 import moment from 'moment';
-import { Employee } from 'src/database/entities/employee.entity';
+import { Employee } from '../../database/entities/employee.entity';
 
 @Injectable()
 export class EmployeeScheduleService {
