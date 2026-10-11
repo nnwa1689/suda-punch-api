@@ -36,8 +36,8 @@ constructor(
   /**
    * 裝置註冊/綁定邏輯
    */
-  async bindDevice(dto: DeviceBindingDto): Promise<EmployeeDevice> {
-    const { employeeId, deviceUuid, deviceType } = dto;
+  async bindDevice(employeeId: string, dto: DeviceBindingDto): Promise<EmployeeDevice> {
+    const { deviceUuid, deviceType } = dto;
     // --- 關鍵驗證：員工是否存在且啟用 ---
     const employee = await this.employeeRepository.findOne({
       where: { 

@@ -1,5 +1,5 @@
 // src/device/device.controller.ts
-import { Controller, Post, Body, HttpCode, HttpStatus, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Delete, UseGuards, Req, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { DeviceService } from './device.service';
 import { DeviceBindingDto } from '../../database/dto/device-binding.dto';
 import { StandardResponse } from '../../common/response.interface';
@@ -12,9 +12,14 @@ export class DeviceController {
   @UseGuards(AuthGuard('jwt'))
   @Post('bind')
   @HttpCode(HttpStatus.CREATED) // 創建資源成功，返回 201
-  async bindDevice(@Body() dto: DeviceBindingDto): Promise<StandardResponse<any>> {
-    
-    const result = await this.deviceService.bindDevice(dto);
+  async bindDevice(@Req() req: any, @Body() dto: DeviceBindingDto): Promise<StandardResponse<any>> {
+    // 只能為登入中的員工本人綁定裝置
+    const employeeId = this.getSelfEmployeeId(req);
+    if (dto.employeeId !== undefined && dto.employeeId !== employeeId) {
+      throw new ForbiddenException('不可為其他員工綁定裝置。');
+    }
+
+    const result = await this.deviceService.bindDevice(employeeId, dto);
 
     // 返回成功響應，Interceptor 會自動將其包裝
     return {
@@ -33,12 +38,19 @@ export class DeviceController {
   @UseGuards(AuthGuard('jwt'))
   @Delete('unbind') // 使用 DELETE 方法
   @HttpCode(HttpStatus.OK) // 執行成功，返回 200
-  async unbindDevice(@Body() dto: DeviceBindingDto): Promise<StandardResponse<any>> {
-    
-    const result = await this.deviceService.unbindDevice(
-        dto.employeeId,
-        dto.deviceUuid
-    );
+  async unbindDevice(@Req() req: any, @Body() dto: DeviceBindingDto): Promise<StandardResponse<any>> {
+    // 管理員可解除任一員工的裝置 (後台重設打卡裝置)；一般員工僅能解除自己的裝置
+    let employeeId: string;
+    if (req.user.isAdmin && dto.employeeId) {
+      employeeId = dto.employeeId;
+    } else {
+      employeeId = this.getSelfEmployeeId(req);
+      if (dto.employeeId !== undefined && dto.employeeId !== employeeId) {
+        throw new ForbiddenException('不可解除其他員工的裝置綁定。');
+      }
+    }
+
+    const result = await this.deviceService.unbindDevice(employeeId, dto.deviceUuid);
 
     // 返回成功響應
     return {
@@ -51,5 +63,18 @@ export class DeviceController {
             isActive: result.is_active, // 應為 false
         }
     };
+  }
+
+  /**
+   * 取得 JWT 中登入員工的編號
+   * @param req 
+   * @returns 
+   */
+  private getSelfEmployeeId(req: any): string {
+    const employeeId = req.user?.employeeId;
+    if (!employeeId) {
+      throw new BadRequestException('當前帳號未連結有效的員工資料');
+    }
+    return employeeId;
   }
 }
