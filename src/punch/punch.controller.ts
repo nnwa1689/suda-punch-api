@@ -1,5 +1,5 @@
 // src/punch/punch.controller.ts
-import { Controller, Post, Body, HttpCode, HttpStatus, UseGuards, BadRequestException, Request, Get, Query, ValidationPipe, Req} from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, UseGuards, BadRequestException, Request, Get, Query, ValidationPipe, Req, Patch, Delete, Param} from '@nestjs/common';
 import { PunchService } from './punch/punch.service';
 import { PunchDto } from '../database/dto/punch.dto'; 
 import { AuthGuard } from '@nestjs/passport';
@@ -7,6 +7,7 @@ import moment from 'moment';
 import { HrQueryPunchDto } from '../database/dto/hr-query-punch.dto';
 import { MyPunchQueryDto } from '../database/dto/my-punch-query.dto';
 import { AdminGuard } from '../auth/admin.guard';
+import { CreatePunchRecordDto, UpdatePunchRecordDto } from '../database/dto/punch-record.dto';
 
 @Controller('api/v1/punch')
 export class PunchController {
@@ -102,5 +103,41 @@ export class PunchController {
       success: true,
       data: lastPunch || null // 如果從未打過卡，回傳 null
     };
+  }
+
+  /**
+   * 新增打卡紀錄（後台補登）
+   * @param dto 
+   * @returns 
+   */
+  @UseGuards(AuthGuard('jwt'), AdminGuard)
+  @Post('records')
+  @HttpCode(HttpStatus.CREATED)
+  async createRecord(@Body() dto: CreatePunchRecordDto) {
+    return { message: '打卡紀錄新增成功', data: await this.punchService.createPunchRecord(dto) };
+  }
+
+  /**
+   * 更新打卡紀錄（後台）
+   * @param id 
+   * @param dto 
+   * @returns 
+   */
+  @UseGuards(AuthGuard('jwt'), AdminGuard)
+  @Patch('records/:id')
+  async updateRecord(@Param('id') id: string, @Body() dto: UpdatePunchRecordDto) {
+    return { message: '打卡紀錄更新成功', data: await this.punchService.updatePunchRecord(id, dto) };
+  }
+
+  /**
+   * 刪除打卡紀錄（後台）
+   * @param id 
+   * @returns 
+   */
+  @UseGuards(AuthGuard('jwt'), AdminGuard)
+  @Delete('records/:id')
+  async deleteRecord(@Param('id') id: string) {
+    await this.punchService.deletePunchRecord(id);
+    return { message: '打卡紀錄已刪除', data: { id } };
   }
 }

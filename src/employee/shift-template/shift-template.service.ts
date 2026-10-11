@@ -3,7 +3,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ShiftTemplate } from '../../database/entities/shift-template.entity';
-import { CreateShiftTemplateDto } from '../../database/dto/shift-template-config.dto';
+import { CreateShiftTemplateDto, UpdateShiftTemplateDto } from '../../database/dto/shift-template-config.dto';
 
 @Injectable()
 export class ShiftTemplateService {
@@ -14,7 +14,7 @@ export class ShiftTemplateService {
 
   // 1. 查詢所有班別模板
   async findAll(): Promise<ShiftTemplate[]> {
-    return this.templateRepository.find();
+    return this.templateRepository.find({ order: { id: 'ASC' } });
   }
 
   // 2. 根據 ID 查詢單個模板 (UUID)
@@ -33,7 +33,8 @@ export class ShiftTemplateService {
     if(templateIsExist != null){
       throw new BadRequestException(`班別代碼 ${dto.id} 已存在，新增失敗。`);
     }
-    // 映射 DTO 欄位到 Entity 欄位（採用駝峰轉蛇形）
+    // 映射 DTO 欄位到 Entity 欄位（採用駝峰轉蛇形），建立與更新時間由系統寫入
+    const now = new Date();
     const newTemplate = this.templateRepository.create({
         id: dto.id,
         name: dto.name,
@@ -42,13 +43,16 @@ export class ShiftTemplateService {
         start_time_m: dto.startTimeM,
         end_time_h: dto.endTimeH,
         end_time_m: dto.endTimeM,
+        is_active: dto.isActive ?? true,
+        created_at: now,
+        updated_at: now,
     });
 
     return this.templateRepository.save(newTemplate);
   }
 
   // 4. 更新班別模板 (使用 findOne + save 模式)
-  async update(id: string, dto: Partial<CreateShiftTemplateDto>): Promise<ShiftTemplate> {
+  async update(id: string, dto: UpdateShiftTemplateDto): Promise<ShiftTemplate> {
     const template = await this.findById(id); // 驗證記錄是否存在
 
     // 根據 DTO 存在的值進行更新
@@ -58,6 +62,8 @@ export class ShiftTemplateService {
     template.start_time_m = dto.startTimeM ?? template.start_time_m;
     template.end_time_h = dto.endTimeH ?? template.end_time_h;
     template.end_time_m = dto.endTimeM ?? template.end_time_m;
+    template.is_active = dto.isActive ?? template.is_active;
+    template.updated_at = new Date();
 
     return this.templateRepository.save(template);
   }
@@ -68,6 +74,7 @@ export class ShiftTemplateService {
       throw new NotFoundException(`找不到 ID 為 ${id} 的班別模板，啟用/停用失敗。`);
     }
     template.is_active = !template.is_active;
+    template.updated_at = new Date();
 
     return this.templateRepository.save(template);
   }

@@ -10,6 +10,7 @@ import { EmployeeScheduleService } from '../employee/employee-schedule/employee-
 import { EmployeeSchedule } from '../database/entities/employee-schedule.entity';
 import { ShiftTemplate } from '../database/entities/shift-template.entity';
 import { Employee } from '../database/entities/employee.entity';
+import { HolidayModule } from '../holiday/holiday.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { Employee } from '../database/entities/employee.entity';
       Employee
     ]),
     CommonModule, // 允許 PunchModule 注入 GeoService
+    HolidayModule, // 判斷例假日
   ],
   controllers: [PunchController],
   providers: [PunchService, EmployeeScheduleService],

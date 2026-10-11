@@ -23,7 +23,7 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, StandardRespon
           statusCode: response.statusCode, // 使用 Controller 設置的 HTTP 狀態碼 (例如 200, 201)
           success: true,
           message: data?.message || '', // 優先使用 Controller 提供的 message
-          data: data.data, // 將實際數據放在 data 欄位
+          data: data?.data, // 將實際數據放在 data 欄位 (Controller 無回傳值時為 undefined)
         };
       }),
     );

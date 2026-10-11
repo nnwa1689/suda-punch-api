@@ -29,13 +29,26 @@ export class EmployeeScheduleService {
   async findAll(query: any): Promise<EmployeeSchedule[]> {
     const page = parseInt(query.page) || 1;
     const limit = parseInt(query.limit) || 10;
-    return this.scheduleRepository.createQueryBuilder('schedule')
-    .leftJoinAndSelect('schedule.employee', 'emp') 
+    const queryBuilder = this.scheduleRepository.createQueryBuilder('schedule')
+    .leftJoinAndSelect('schedule.employee', 'emp')
     .leftJoinAndSelect('schedule.template', 'template')
     .orderBy('schedule.schedule_date', 'DESC')
     .skip((page - 1) * limit)
-    .take(limit)
-    .getMany();
+    .take(limit);
+
+    // 依員工篩選
+    if (query.employeeId) {
+      queryBuilder.andWhere('schedule.employee_id = :employeeId', { employeeId: query.employeeId });
+    }
+    // 依排班日期區間篩選 (YYYY-MM-DD)
+    if (query.startDate) {
+      queryBuilder.andWhere('schedule.schedule_date >= :startDate', { startDate: query.startDate });
+    }
+    if (query.endDate) {
+      queryBuilder.andWhere('schedule.schedule_date <= :endDate', { endDate: query.endDate });
+    }
+
+    return queryBuilder.getMany();
   }
 
   /**

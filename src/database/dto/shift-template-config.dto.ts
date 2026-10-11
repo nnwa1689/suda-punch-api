@@ -1,10 +1,15 @@
 // src/database/dto/shift-template-config.dto.ts
-import { IsString, IsBoolean, IsInt, Min, Max, IsOptional } from 'class-validator';
+import { IsString, IsBoolean, IsInt, Min, Max, IsOptional, IsNotEmpty, MaxLength } from 'class-validator';
+import { OmitType, PartialType } from '@nestjs/swagger';
 
 export class CreateShiftTemplateDto {
   @IsString()
+  @IsNotEmpty({ message: '班別代碼不可為空' })
+  @MaxLength(100)
   readonly id: string;
   @IsString()
+  @IsNotEmpty({ message: '班別名稱不可為空' })
+  @MaxLength(100)
   readonly name: string;
   
   @IsBoolean()
@@ -35,3 +40,6 @@ export class CreateShiftTemplateDto {
   @IsOptional()
   readonly isActive:boolean;
 }
+
+// 更新時不可修改班別代碼
+export class UpdateShiftTemplateDto extends PartialType(OmitType(CreateShiftTemplateDto, ['id'] as const)) {}

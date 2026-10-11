@@ -11,6 +11,10 @@ import { EmployeeScheduleService } from 'src/employee/employee-schedule/employee
 import { HrQueryPunchDto } from 'src/database/dto/hr-query-punch.dto';
 import { MyPunchQueryDto } from 'src/database/dto/my-punch-query.dto';
 import { EmployeeSchedule } from 'src/database/entities/employee-schedule.entity';
+import { Employee } from 'src/database/entities/employee.entity';
+import { CreatePunchRecordDto, UpdatePunchRecordDto } from 'src/database/dto/punch-record.dto';
+import { HolidayService } from 'src/holiday/holiday.service';
+import moment from 'moment';
 
 @Injectable()
 export class PunchService {
@@ -20,9 +24,12 @@ export class PunchService {
     private logsRepository: Repository<PunchLog>,
     @InjectRepository(PunchPoint)
     private pointsRepository: Repository<PunchPoint>,
+    @InjectRepository(Employee)
+    private employeeRepository: Repository<Employee>,
     private deviceService: DeviceService,
     private geoService: GeoService,
     private readonly scheduleService: EmployeeScheduleService,
+    private readonly holidayService: HolidayService,
   ) {}
 
   /**
@@ -74,18 +81,13 @@ export class PunchService {
       }
     }
 
-    const schedule = await this.getEmployeeSchedule(employeeId, punchTime);
-    if(schedule == null){
-      resultMessage = '無排班記錄，請確認是否異常打卡。';
-    }
-    var isLate:boolean = false;
-    var isEarly:boolean = false;
-    if(type == 'CHECK_IN')
-      isLate = this.calculateLateStatus(schedule, punchTime);
-    else if(type == 'CHECK_OUT')
-      isEarly = this.calculateEarlyStatus(schedule, punchTime);
-    else
+    if (type !== 'CHECK_IN' && type !== 'CHECK_OUT') {
       throw new BadRequestException(`${ type } 不是合法的打卡類別。`);
+    }
+    const status = await this.resolvePunchStatus(employeeId, type, punchTime);
+    const isLate = status.isLate;
+    const isEarly = status.isEarly;
+    resultMessage = status.remark ?? '';
 
     // 在這裡，您可以使用 TypeORM 的 transaction 確保多個資料庫操作的原子性
     const log = this.logsRepository.create({
@@ -132,6 +134,7 @@ export class PunchService {
   const queryBuilder = this.logsRepository.createQueryBuilder('punch')
     .leftJoinAndSelect('punch.employee', 'employee')
     .leftJoinAndSelect('employee.department', 'department')
+    .leftJoinAndSelect('punch.punchPoint', 'punchPoint')
     .orderBy('punch.punch_time', 'DESC')
     .skip(skip)
     .take(limit);
@@ -188,6 +191,140 @@ export class PunchService {
         limit,
         totalPages: Math.ceil(total / limit)
       }
+    };
+  }
+
+  /**
+   * 後台-新增打卡紀錄 (補登)
+   * @param dto 
+   * @returns 
+   */
+  async createPunchRecord(dto: CreatePunchRecordDto): Promise<PunchLog> {
+    await this.ensureEmployeeExists(dto.employeeId);
+    const punchPoint = await this.findPunchPointOrFail(dto.punchPointsId);
+    const punchTime = new Date(dto.punchTime);
+    const status = await this.resolvePunchStatus(dto.employeeId, dto.punchType, punchTime);
+
+    const log = this.logsRepository.create({
+      id: uuid_v4(),
+      employee_id: dto.employeeId,
+      punch_time: punchTime,
+      recorded_lat: dto.recordedLat ?? punchPoint.latitude,
+      recorded_lng: dto.recordedLng ?? punchPoint.longitude,
+      punch_points_id: punchPoint.id,
+      punch_type: dto.punchType,
+      is_late: dto.isLate ?? status.isLate,
+      is_early: dto.isEarly ?? status.isEarly,
+      remark: dto.remark ?? status.remark ?? '',
+    });
+
+    await this.logsRepository.save(log);
+    return this.findPunchRecordOrFail(log.id);
+  }
+
+  /**
+   * 後台-更新打卡紀錄
+   * 若變更員工、時間或類別且未指定遲到/早退，則依排班重新計算
+   * @param id 
+   * @param dto 
+   * @returns 
+   */
+  async updatePunchRecord(id: string, dto: UpdatePunchRecordDto): Promise<PunchLog> {
+    const log = await this.findPunchRecordOrFail(id);
+
+    if (dto.employeeId !== undefined) {
+      await this.ensureEmployeeExists(dto.employeeId);
+      log.employee_id = dto.employeeId;
+    }
+    if (dto.punchPointsId !== undefined) {
+      const punchPoint = await this.findPunchPointOrFail(dto.punchPointsId);
+      log.punch_points_id = punchPoint.id;
+    }
+    if (dto.punchTime !== undefined) log.punch_time = new Date(dto.punchTime);
+    if (dto.punchType !== undefined) log.punch_type = dto.punchType;
+    if (dto.recordedLat !== undefined) log.recorded_lat = dto.recordedLat;
+    if (dto.recordedLng !== undefined) log.recorded_lng = dto.recordedLng;
+    if (dto.remark !== undefined) log.remark = dto.remark;
+
+    const needRecalc = dto.employeeId !== undefined || dto.punchTime !== undefined || dto.punchType !== undefined;
+    if (needRecalc && (dto.isLate === undefined || dto.isEarly === undefined)) {
+      const status = await this.resolvePunchStatus(log.employee_id, log.punch_type ?? '', new Date(log.punch_time));
+      log.is_late = status.isLate;
+      log.is_early = status.isEarly;
+    }
+    if (dto.isLate !== undefined) log.is_late = dto.isLate;
+    if (dto.isEarly !== undefined) log.is_early = dto.isEarly;
+
+    await this.logsRepository.update(id, {
+      employee_id: log.employee_id,
+      punch_time: log.punch_time,
+      punch_points_id: log.punch_points_id,
+      punch_type: log.punch_type,
+      recorded_lat: log.recorded_lat,
+      recorded_lng: log.recorded_lng,
+      is_late: log.is_late,
+      is_early: log.is_early,
+      remark: log.remark,
+    });
+    return this.findPunchRecordOrFail(id);
+  }
+
+  /**
+   * 後台-刪除打卡紀錄 (實際刪除)
+   * @param id 
+   */
+  async deletePunchRecord(id: string): Promise<void> {
+    const result = await this.logsRepository.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException(`找不到 ID 為 ${id} 的打卡紀錄，刪除失敗。`);
+    }
+  }
+
+  private async findPunchRecordOrFail(id: string): Promise<PunchLog> {
+    const log = await this.logsRepository.findOne({
+      where: { id },
+      relations: ['employee', 'punchPoint'],
+    });
+    if (!log) {
+      throw new NotFoundException(`找不到 ID 為 ${id} 的打卡紀錄。`);
+    }
+    return log;
+  }
+
+  private async ensureEmployeeExists(employeeId: string): Promise<void> {
+    const employee = await this.employeeRepository.findOne({ where: { id: employeeId } });
+    if (!employee) {
+      throw new NotFoundException(`找不到員工編號 ${employeeId}。`);
+    }
+  }
+
+  // 後台調整允許使用已停用的打卡點 (修正歷史紀錄)
+  private async findPunchPointOrFail(punchPointsId: string): Promise<PunchPoint> {
+    const punchPoint = await this.pointsRepository.findOne({ where: { id: punchPointsId } });
+    if (!punchPoint) {
+      throw new NotFoundException(`找不到打卡點 ${punchPointsId}。`);
+    }
+    return punchPoint;
+  }
+
+  /**
+   * 依例假日與排班判斷遲到/早退
+   * 例假日不計遲到早退 (與 App 今日班別顯示「無排班(例假日)」一致)
+   * @returns remark 為需要寫入打卡紀錄的系統備註，無則為 undefined
+   */
+  private async resolvePunchStatus(employeeId: string, type: string, punchTime: Date): Promise<{ isLate: boolean; isEarly: boolean; remark?: string }> {
+    const holiday = await this.holidayService.getHolidayWithDate(moment(punchTime).format('YYYY-MM-DD'));
+    if (holiday) {
+      return { isLate: false, isEarly: false, remark: `例假日(${holiday.subject})打卡，不計遲到早退。` };
+    }
+
+    const schedule = await this.getEmployeeSchedule(employeeId, punchTime);
+    if (!schedule) {
+      return { isLate: false, isEarly: false, remark: '無排班記錄，請確認是否異常打卡。' };
+    }
+    return {
+      isLate: type === 'CHECK_IN' ? this.calculateLateStatus(schedule, punchTime) : false,
+      isEarly: type === 'CHECK_OUT' ? this.calculateEarlyStatus(schedule, punchTime) : false,
     };
   }
 

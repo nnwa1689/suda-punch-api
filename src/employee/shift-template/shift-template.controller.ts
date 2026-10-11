@@ -1,7 +1,7 @@
 // src/employee/shift-template.controller.ts
 import { Controller, Get, Post, Body, HttpCode, HttpStatus, Param, Patch, Delete, UseGuards } from '@nestjs/common';
 import { ShiftTemplateService } from './shift-template.service';
-import { CreateShiftTemplateDto } from '../../database/dto/shift-template-config.dto';
+import { CreateShiftTemplateDto, UpdateShiftTemplateDto } from '../../database/dto/shift-template-config.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { AdminGuard } from '../../auth/admin.guard';
 
@@ -32,7 +32,7 @@ export class ShiftTemplateController {
   @Patch(':id') // 更新
   async update(
     @Param('id') id: string,
-    @Body() dto: Partial<CreateShiftTemplateDto>,
+    @Body() dto: UpdateShiftTemplateDto,
   ) {
     return { data: await this.templateService.update(id, dto) };
   }

@@ -4,6 +4,8 @@ import { EmployeeScheduleService } from './employee-schedule.service';
 import { HolidayService } from '../../holiday/holiday.service';
 import { GeoService } from '../../common/geo/geo.service';
 import { CreateEmployeeScheduleDto } from '../../database/dto/employee-schedule-config.dto';
+import { BatchScheduleDto } from '../../database/dto/batch-schedule.dto';
+import { EmployeeScheduleBatchService } from './employee-schedule-batch.service';
 import { AuthGuard } from '@nestjs/passport';
 import { AdminGuard } from '../../auth/admin.guard';
 
@@ -11,6 +13,7 @@ import { AdminGuard } from '../../auth/admin.guard';
 export class EmployeeScheduleController {
   constructor(
     private readonly scheduleService: EmployeeScheduleService, 
+    private readonly batchService: EmployeeScheduleBatchService,
     private readonly holidayService: HolidayService,
     private readonly geoService: GeoService
   ) {}
@@ -47,6 +50,19 @@ export class EmployeeScheduleController {
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() dto: CreateEmployeeScheduleDto) {
     return { data: await this.scheduleService.create(dto) };
+  }
+
+  /**
+   * 批次匯入排班 (CSV 解析後的資料)，任一筆驗證失敗則整批不匯入
+   * @param dto 
+   * @returns 
+   */
+  @UseGuards(AuthGuard('jwt'), AdminGuard)
+  @Post('batch')
+  @HttpCode(HttpStatus.CREATED)
+  async batchImport(@Body() dto: BatchScheduleDto) {
+    const result = await this.batchService.importSchedules(dto);
+    return { message: `成功匯入 ${result.rowCount} 位員工，共 ${result.scheduleCount} 筆排班。`, data: result };
   }
 
   /**
